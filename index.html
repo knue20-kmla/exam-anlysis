@@ -22,7 +22,6 @@
       --border-hover: #4a90e2;
       --primary: #2196f3;
       --primary-dark: #1976d2;
-      --primary-light: #64b5f6;
       --text: #1a2332;
       --text-secondary: #546e7a;
       --text-muted: #90a4ae;
@@ -45,7 +44,6 @@
       display: flex;
     }
 
-    /* 사이드바 */
     .sidebar {
       width: 260px;
       background: var(--sidebar-bg);
@@ -131,7 +129,6 @@
       border-radius: 5px;
     }
 
-    /* 메인 콘텐츠 */
     .main-content {
       margin-left: 260px;
       flex: 1;
@@ -155,7 +152,6 @@
       color: var(--text-muted);
     }
 
-    /* 월별 탭 */
     .month-tabs {
       display: flex;
       gap: 6px;
@@ -186,7 +182,6 @@
       border-color: var(--primary);
     }
 
-    /* 성적 테이블 */
     .grade-table {
       background: var(--content-bg);
       border: 1px solid var(--border);
@@ -208,9 +203,14 @@
       text-align: center;
       font-size: 11px;
       font-weight: 700;
-      border-bottom: 2px solid var(--border);
+      border-bottom: 1px solid var(--border);
       border-right: 1px solid var(--border);
       white-space: nowrap;
+    }
+
+    .grade-table th.subject-header {
+      background: #e8eef3;
+      font-size: 12px;
     }
 
     .grade-table th:last-child {
@@ -251,12 +251,8 @@
     .grade-3 { color: var(--grade-3); }
     .grade-4 { color: var(--grade-4); }
     .grade-5 { color: var(--grade-5); }
-    .grade-6,
-    .grade-7,
-    .grade-8,
-    .grade-9 { color: var(--grade-poor); }
+    .grade-6, .grade-7, .grade-8, .grade-9 { color: var(--grade-poor); }
 
-    /* 로딩 */
     .loading {
       text-align: center;
       padding: 60px 20px;
@@ -282,7 +278,6 @@
       font-size: 13px;
     }
 
-    /* 에러 & 빈 상태 */
     .error, .empty {
       background: white;
       border: 1px solid var(--border);
@@ -303,7 +298,6 @@
       opacity: 0.3;
     }
 
-    /* 반응형 */
     @media (max-width: 768px) {
       .sidebar {
         width: 100%;
@@ -458,9 +452,8 @@
         return;
       }
 
-      // 동적으로 컬럼 추출
-      const allKeys = Object.keys(grades[0]).filter(k => k !== 'month' && k !== 'error');
-      const columns = allKeys.filter(k => k !== '번호' && k !== '이름');
+      // 학생이 응시한 과목만 추출
+      const subjectGroups = extractStudentSubjects(grades[0]);
 
       content.innerHTML = `
         <div class="content-header">
@@ -482,25 +475,64 @@
           <table>
             <thead>
               <tr>
-                <th>시험</th>
-                ${columns.map(col => `<th>${col}</th>`).join('')}
+                <th rowspan="2">시험</th>
+                ${subjectGroups.map(sg => `<th colspan="${sg.metrics.length}" class="subject-header">${sg.subject}</th>`).join('')}
+              </tr>
+              <tr>
+                ${subjectGroups.map(sg => sg.metrics.map(m => `<th>${m}</th>`).join('')).join('')}
               </tr>
             </thead>
             <tbody>
               ${grades.map(g => `
                 <tr>
                   <td>${g.month}</td>
-                  ${columns.map(col => {
-                    const value = g[col] || '-';
-                    const isGrade = col.includes('등급');
-                    return `<td class="${isGrade ? 'grade-value ' + getGradeClass(value) : ''}">${value}</td>`;
-                  }).join('')}
+                  ${subjectGroups.map(sg =>
+                    sg.metrics.map(m => {
+                      const key = `${sg.subject}_${m}`;
+                      const value = g[key] || '-';
+                      const isGrade = m === '등급';
+                      return `<td class="${isGrade ? 'grade-value ' + getGradeClass(value) : ''}">${value}</td>`;
+                    }).join('')
+                  ).join('')}
                 </tr>
               `).join('')}
             </tbody>
           </table>
         </div>
       `;
+    }
+
+    // 학생이 응시한 과목만 추출
+    function extractStudentSubjects(gradeData) {
+      if (!gradeData) return [];
+
+      const allKeys = Object.keys(gradeData).filter(k => k !== 'month' && k !== 'error' && k !== '번호' && k !== '이름');
+      const subjectMap = {};
+
+      allKeys.forEach(key => {
+        const parts = key.split('_');
+        if (parts.length >= 2) {
+          const metric = parts[parts.length - 1];
+          const subject = parts.slice(0, -1).join('_');
+
+          // 값이 있는 과목만 포함
+          if (gradeData[key]) {
+            if (!subjectMap[subject]) {
+              subjectMap[subject] = new Set();
+            }
+            subjectMap[subject].add(metric);
+          }
+        }
+      });
+
+      // 과목별로 정리
+      return Object.entries(subjectMap).map(([subject, metricsSet]) => ({
+        subject: subject,
+        metrics: Array.from(metricsSet).sort((a, b) => {
+          const order = ['원점수', '표준점수', '백분위', '등급'];
+          return order.indexOf(a) - order.indexOf(b);
+        })
+      }));
     }
 
     function changeMonth(month) {
