@@ -15,212 +15,238 @@
     }
 
     :root {
-      --bg: #0f1729;
-      --surface: #1a2332;
-      --surface2: #242f42;
-      --surface3: #2d3a52;
-      --border: rgba(255,255,255,0.08);
-      --border-h: rgba(255,255,255,0.15);
-      --primary: #4a90e2;
-      --primary-light: #6ba3e8;
-      --primary-dim: rgba(74,144,226,0.12);
-      --gold: #d4af37;
-      --text: #e8f0f8;
-      --text-secondary: #b8c9db;
-      --text-muted: #7a8ba3;
-      --grade-1: #28a745;
-      --grade-2: #5cb85c;
+      --bg: #f0f4f8;
+      --bg-gradient: linear-gradient(135deg, #e3f2fd 0%, #f0f4f8 50%, #e1f5fe 100%);
+      --sidebar-bg: #ffffff;
+      --content-bg: #ffffff;
+      --border: #e0e7ef;
+      --border-hover: #4a90e2;
+      --primary: #2196f3;
+      --primary-dark: #1976d2;
+      --primary-light: #64b5f6;
+      --accent: #00bcd4;
+      --text: #1a2332;
+      --text-secondary: #546e7a;
+      --text-muted: #90a4ae;
+      --shadow: rgba(33, 150, 243, 0.08);
+      --shadow-hover: rgba(33, 150, 243, 0.15);
+      --grade-1: #4caf50;
+      --grade-2: #8bc34a;
       --grade-3: #ffc107;
       --grade-4: #ff9800;
       --grade-5: #ff5722;
-      --grade-poor: #ef4444;
-      --radius: 16px;
-      --radius-sm: 12px;
+      --grade-poor: #f44336;
+      --radius: 12px;
     }
 
     body {
       font-family: 'Noto Sans KR', sans-serif;
-      background: linear-gradient(135deg, var(--bg) 0%, #1a2841 50%, var(--bg) 100%);
+      background: var(--bg-gradient);
       background-attachment: fixed;
       color: var(--text);
       min-height: 100vh;
-    }
-
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 40px 24px;
-    }
-
-    /* 헤더 */
-    .header {
-      text-align: center;
-      margin-bottom: 48px;
-      padding-bottom: 24px;
-      position: relative;
-    }
-
-    .header::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80px;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    }
-
-    .school-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.15em;
-      color: var(--primary-light);
-      text-transform: uppercase;
-      margin-bottom: 16px;
-    }
-
-    .school-tag::before,
-    .school-tag::after {
-      content: '';
-      width: 24px;
-      height: 1px;
-      background: var(--primary-light);
-    }
-
-    .header h1 {
-      font-size: 36px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      margin-bottom: 12px;
-    }
-
-    .header p {
-      font-size: 15px;
-      color: var(--text-muted);
-    }
-
-    /* 탭 */
-    .tabs {
       display: flex;
-      gap: 12px;
-      margin-bottom: 32px;
-      background: var(--surface);
-      padding: 8px;
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
     }
 
-    .tab {
-      flex: 1;
-      padding: 14px 24px;
+    /* 사이드바 */
+    .sidebar {
+      width: 280px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      overflow-y: auto;
+      box-shadow: 4px 0 12px var(--shadow);
+      z-index: 100;
+    }
+
+    .sidebar-header {
+      padding: 32px 24px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+    }
+
+    .sidebar-header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .sidebar-header p {
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    /* 월별 탭 */
+    .month-tabs {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .month-tab {
+      display: block;
+      width: 100%;
+      padding: 12px 16px;
+      margin-bottom: 4px;
       background: transparent;
-      border: none;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
       color: var(--text-secondary);
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 600;
-      border-radius: var(--radius-sm);
+      text-align: left;
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.2s;
     }
 
-    .tab:hover {
-      background: var(--primary-dim);
-      color: var(--primary-light);
+    .month-tab:hover {
+      background: #f5f9fc;
+      border-color: var(--border);
     }
 
-    .tab.active {
+    .month-tab.active {
       background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
       color: white;
-      box-shadow: 0 4px 12px rgba(74,144,226,0.3);
-    }
-
-    /* 학생 그리드 */
-    .students-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 16px;
-      margin-bottom: 40px;
-    }
-
-    .student-card {
-      background: var(--surface);
-      border: 2px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .student-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--primary), var(--gold));
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    .student-card:hover {
       border-color: var(--primary);
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(74,144,226,0.2);
+      box-shadow: 0 2px 8px var(--shadow-hover);
     }
 
-    .student-card:hover::before {
-      opacity: 1;
+    /* 학생 목록 */
+    .student-list {
+      padding: 8px;
+    }
+
+    .student-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      margin-bottom: 4px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .student-item:hover {
+      border-color: var(--border-hover);
+      box-shadow: 0 2px 8px var(--shadow-hover);
+      transform: translateX(4px);
+    }
+
+    .student-item.active {
+      background: linear-gradient(135deg, #e3f2fd 0%, #f0f8ff 100%);
+      border-color: var(--primary);
     }
 
     .student-name {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 16px;
-      color: var(--text);
-      text-align: center;
-    }
-
-    .student-grades {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 8px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border);
-    }
-
-    .grade-item {
-      text-align: center;
-    }
-
-    .grade-label {
-      font-size: 10px;
-      color: var(--text-muted);
-      margin-bottom: 4px;
+      font-size: 15px;
       font-weight: 600;
+      color: var(--text);
+    }
+
+    .student-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      background: var(--primary);
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 6px;
+    }
+
+    /* 메인 콘텐츠 */
+    .main-content {
+      margin-left: 280px;
+      flex: 1;
+      padding: 40px;
+      min-height: 100vh;
+    }
+
+    .content-header {
+      margin-bottom: 32px;
+    }
+
+    .content-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .content-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* 성적 테이블 */
+    .grade-table {
+      background: var(--content-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 2px 12px var(--shadow);
+    }
+
+    .grade-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .grade-table th {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      padding: 16px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      border-right: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .grade-table th:last-child {
+      border-right: none;
+    }
+
+    .grade-table td {
+      padding: 16px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      font-size: 14px;
+    }
+
+    .grade-table td:last-child {
+      border-right: none;
+    }
+
+    .grade-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .grade-table tbody tr:hover {
+      background: #f5f9fc;
+    }
+
+    .subject-header {
+      background: var(--primary-light) !important;
+      color: white !important;
+      font-size: 14px !important;
     }
 
     .grade-value {
-      font-size: 18px;
-      font-weight: 700;
+      font-weight: 600;
     }
 
-    .grade-value.grade-1 { color: var(--grade-1); }
-    .grade-value.grade-2 { color: var(--grade-2); }
-    .grade-value.grade-3 { color: var(--grade-3); }
-    .grade-value.grade-4 { color: var(--grade-4); }
-    .grade-value.grade-5 { color: var(--grade-5); }
-    .grade-value.grade-6,
-    .grade-value.grade-7,
-    .grade-value.grade-8,
-    .grade-value.grade-9 { color: var(--grade-poor); }
-    .grade-value.empty { color: var(--border); }
+    .grade-1 { color: var(--grade-1); }
+    .grade-2 { color: var(--grade-2); }
+    .grade-3 { color: var(--grade-3); }
+    .grade-4 { color: var(--grade-4); }
+    .grade-5 { color: var(--grade-5); }
+    .grade-poor { color: var(--grade-poor); }
 
     /* 로딩 */
     .loading {
@@ -249,7 +275,7 @@
 
     /* 에러 */
     .error {
-      background: var(--surface);
+      background: white;
       border: 2px solid var(--grade-poor);
       border-radius: var(--radius);
       padding: 24px;
@@ -272,50 +298,64 @@
 
     /* 반응형 */
     @media (max-width: 768px) {
-      .header h1 {
-        font-size: 28px;
+      .sidebar {
+        width: 100%;
+        position: relative;
+        height: auto;
       }
 
-      .tabs {
-        flex-direction: column;
+      .main-content {
+        margin-left: 0;
       }
 
-      .students-grid {
-        grid-template-columns: 1fr;
+      .grade-table {
+        overflow-x: auto;
       }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <!-- 헤더 -->
-    <div class="header">
-      <div class="school-tag">
-        <span>민족사관고등학교</span>
-      </div>
-      <h1>📊 모의고사 분석 시스템</h1>
-      <p>3학년 2반 성적 분석 및 추이 관리</p>
+  <!-- 사이드바 -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h1>📊 모의고사 분석</h1>
+      <p>민족사관고등학교 3학년 2반</p>
     </div>
 
-    <!-- 탭 -->
-    <div class="tabs">
-      <button class="tab active" data-month="all">전체</button>
-      <button class="tab" data-month="3월">3월</button>
-      <button class="tab" data-month="5월">5월</button>
-      <button class="tab" data-month="6월">6월</button>
-      <button class="tab" data-month="7월">7월</button>
-      <button class="tab" data-month="9월">9월</button>
-      <button class="tab" data-month="10월">10월</button>
+    <!-- 월별 탭 -->
+    <div class="month-tabs" id="monthTabs">
+      <button class="month-tab active" data-month="all">전체</button>
+      <button class="month-tab" data-month="3월">3월 모의고사</button>
+      <button class="month-tab" data-month="5월">5월 모의고사</button>
+      <button class="month-tab" data-month="6월">6월 모의고사</button>
+      <button class="month-tab" data-month="7월">7월 모의고사</button>
+      <button class="month-tab" data-month="9월">9월 모의고사</button>
+      <button class="month-tab" data-month="10월">10월 모의고사</button>
     </div>
 
     <!-- 학생 목록 -->
+    <div class="student-list" id="studentList">
+      <div class="loading">
+        <div class="spinner"></div>
+        <div class="loading-text">로딩 중...</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 메인 콘텐츠 -->
+  <main class="main-content">
+    <div class="content-header">
+      <h2 class="content-title">전체 학생 성적</h2>
+      <p class="content-subtitle">학생을 선택하면 상세 정보를 볼 수 있습니다</p>
+    </div>
+
     <div id="content">
       <div class="loading">
         <div class="spinner"></div>
         <div class="loading-text">학생 데이터를 불러오는 중...</div>
       </div>
     </div>
-  </div>
+  </main>
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbzhGzErp_fxQOh8HDHHGEIn305UuO05OHXLzimvrNsOXfbFltG7V0uczk_diEu_HsViPg/exec';
@@ -323,160 +363,186 @@
     let studentsData = [];
     let examsData = {};
     let currentMonth = 'all';
+    let selectedStudent = null;
 
     // 초기화
     async function init() {
       try {
-        // 학생 목록 가져오기
         const students = await fetchStudents();
         studentsData = students;
 
-        // 각 월별 시험 데이터 가져오기
         const months = ['3월', '5월', '6월', '7월', '9월', '10월'];
         for (const month of months) {
           const data = await fetchExamData(month);
           examsData[month] = data;
         }
 
-        // 렌더링
-        renderStudents();
+        renderStudentList();
+        renderContent();
       } catch (error) {
         console.error('초기화 오류:', error);
         showError('데이터를 불러오는데 실패했습니다.');
       }
     }
 
-    // API 호출: 학생 목록
     async function fetchStudents() {
       const response = await fetch(`${API_URL}?action=getAllStudents`);
-      const data = await response.json();
-      return data;
+      return await response.json();
     }
 
-    // API 호출: 월별 시험 데이터
     async function fetchExamData(month) {
       try {
         const response = await fetch(`${API_URL}?action=getExamData&month=${month}`);
-        const data = await response.json();
-        return data;
+        return await response.json();
       } catch (error) {
-        console.error(`${month} 데이터 로드 실패:`, error);
         return [];
       }
     }
 
-    // 학생 카드 렌더링
-    function renderStudents() {
-      const content = document.getElementById('content');
+    // 학생 목록 렌더링
+    function renderStudentList() {
+      const list = document.getElementById('studentList');
 
       if (studentsData.length === 0) {
+        list.innerHTML = '<div class="empty"><div class="empty-icon">👥</div><p>학생 데이터가 없습니다</p></div>';
+        return;
+      }
+
+      list.innerHTML = studentsData.map(student => `
+        <div class="student-item ${selectedStudent === student.이름 ? 'active' : ''}" onclick="selectStudent('${student.이름}')">
+          <span class="student-name">${student.이름}</span>
+          <span class="student-badge">${getExamCount(student.이름)}</span>
+        </div>
+      `).join('');
+    }
+
+    function getExamCount(studentName) {
+      let count = 0;
+      Object.values(examsData).forEach(monthData => {
+        if (monthData && monthData.find(e => e.이름 === studentName)) count++;
+      });
+      return count + '회';
+    }
+
+    function selectStudent(studentName) {
+      selectedStudent = studentName;
+      renderStudentList();
+      renderContent();
+    }
+
+    // 콘텐츠 렌더링
+    function renderContent() {
+      const content = document.getElementById('content');
+
+      if (!selectedStudent) {
         content.innerHTML = `
           <div class="empty">
-            <div class="empty-icon">👥</div>
-            <h3>학생 데이터가 없습니다</h3>
-            <p>학생명단 시트를 확인해주세요</p>
+            <div class="empty-icon">👈</div>
+            <h3>학생을 선택해주세요</h3>
+            <p>왼쪽에서 학생을 클릭하면 성적표를 볼 수 있습니다</p>
           </div>
         `;
         return;
       }
 
-      const html = `
-        <div class="students-grid">
-          ${studentsData.map(student => {
-            const grades = getStudentGrades(student.이름, currentMonth);
-            return `
-              <div class="student-card" onclick="goToStudent('${student.이름}')">
-                <div class="student-name">${student.이름}</div>
-                <div class="student-grades">
-                  <div class="grade-item">
-                    <div class="grade-label">국어</div>
-                    <div class="grade-value ${getGradeClass(grades.korean)}">${grades.korean || '-'}</div>
-                  </div>
-                  <div class="grade-item">
-                    <div class="grade-label">수학</div>
-                    <div class="grade-value ${getGradeClass(grades.math)}">${grades.math || '-'}</div>
-                  </div>
-                  <div class="grade-item">
-                    <div class="grade-label">영어</div>
-                    <div class="grade-value ${getGradeClass(grades.english)}">${grades.english || '-'}</div>
-                  </div>
-                  <div class="grade-item">
-                    <div class="grade-label">탐구1</div>
-                    <div class="grade-value ${getGradeClass(grades.inquiry1)}">${grades.inquiry1 || '-'}</div>
-                  </div>
-                  <div class="grade-item">
-                    <div class="grade-label">탐구2</div>
-                    <div class="grade-value ${getGradeClass(grades.inquiry2)}">${grades.inquiry2 || '-'}</div>
-                  </div>
-                </div>
-              </div>
-            `;
-          }).join('')}
+      const grades = getStudentAllGrades(selectedStudent, currentMonth);
+
+      if (grades.length === 0) {
+        content.innerHTML = `
+          <div class="empty">
+            <div class="empty-icon">📊</div>
+            <h3>성적 데이터가 없습니다</h3>
+            <p>${selectedStudent} 학생의 ${currentMonth === 'all' ? '전체' : currentMonth} 성적이 없습니다</p>
+          </div>
+        `;
+        return;
+      }
+
+      content.innerHTML = `
+        <div class="grade-table">
+          <table>
+            <thead>
+              <tr>
+                <th>시험</th>
+                <th class="subject-header" colspan="4">국어</th>
+                <th class="subject-header" colspan="4">수학</th>
+                <th class="subject-header" colspan="2">영어</th>
+                <th class="subject-header" colspan="4">탐구1</th>
+                <th class="subject-header" colspan="4">탐구2</th>
+              </tr>
+              <tr>
+                <th>월</th>
+                <th>원점수</th><th>표준점수</th><th>백분위</th><th>등급</th>
+                <th>원점수</th><th>표준점수</th><th>백분위</th><th>등급</th>
+                <th>원점수</th><th>등급</th>
+                <th>원점수</th><th>표준점수</th><th>백분위</th><th>등급</th>
+                <th>원점수</th><th>표준점수</th><th>백분위</th><th>등급</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${grades.map(g => `
+                <tr>
+                  <td><strong>${g.month}</strong></td>
+                  <td>${g.국어_원점수 || '-'}</td>
+                  <td>${g.국어_표준점수 || '-'}</td>
+                  <td>${g.국어_백분위 || '-'}</td>
+                  <td class="grade-value ${getGradeClass(g.국어_등급)}">${g.국어_등급 || '-'}</td>
+                  <td>${g.수학_원점수 || '-'}</td>
+                  <td>${g.수학_표준점수 || '-'}</td>
+                  <td>${g.수학_백분위 || '-'}</td>
+                  <td class="grade-value ${getGradeClass(g.수학_등급)}">${g.수학_등급 || '-'}</td>
+                  <td>${g.영어_원점수 || '-'}</td>
+                  <td class="grade-value ${getGradeClass(g.영어_등급)}">${g.영어_등급 || '-'}</td>
+                  <td>${g.탐구1_원점수 || '-'}</td>
+                  <td>${g.탐구1_표준점수 || '-'}</td>
+                  <td>${g.탐구1_백분위 || '-'}</td>
+                  <td class="grade-value ${getGradeClass(g.탐구1_등급)}">${g.탐구1_등급 || '-'}</td>
+                  <td>${g.탐구2_원점수 || '-'}</td>
+                  <td>${g.탐구2_표준점수 || '-'}</td>
+                  <td>${g.탐구2_백분위 || '-'}</td>
+                  <td class="grade-value ${getGradeClass(g.탐구2_등급)}">${g.탐구2_등급 || '-'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
         </div>
       `;
-
-      content.innerHTML = html;
     }
 
-    // 학생 과목별 평균 등급 계산
-    function getStudentGrades(studentName, month) {
-      let exams = [];
+    function getStudentAllGrades(studentName, month) {
+      let results = [];
 
       if (month === 'all') {
-        Object.values(examsData).forEach(monthData => {
-          if (monthData && Array.isArray(monthData)) {
-            const studentExam = monthData.find(e => e.이름 === studentName);
-            if (studentExam) exams.push(studentExam);
+        Object.entries(examsData).forEach(([m, data]) => {
+          if (data && Array.isArray(data)) {
+            const exam = data.find(e => e.이름 === studentName);
+            if (exam) results.push({ month: m, ...exam });
           }
         });
       } else {
-        const monthData = examsData[month];
-        if (monthData && Array.isArray(monthData)) {
-          const studentExam = monthData.find(e => e.이름 === studentName);
-          if (studentExam) exams.push(studentExam);
+        const data = examsData[month];
+        if (data && Array.isArray(data)) {
+          const exam = data.find(e => e.이름 === studentName);
+          if (exam) results.push({ month: month, ...exam });
         }
       }
 
-      if (exams.length === 0) {
-        return { korean: null, math: null, english: null, inquiry1: null, inquiry2: null };
-      }
-
-      // 각 과목별 평균 계산
-      const calcAvg = (field) => {
-        const grades = exams.map(e => parseInt(e[field])).filter(g => !isNaN(g));
-        return grades.length > 0 ? (grades.reduce((a,b) => a+b, 0) / grades.length).toFixed(1) : null;
-      };
-
-      return {
-        korean: calcAvg('국어_등급'),
-        math: calcAvg('수학_등급'),
-        english: calcAvg('영어_등급'),
-        inquiry1: calcAvg('탐구1_등급'),
-        inquiry2: calcAvg('탐구2_등급')
-      };
+      return results;
     }
 
-    // 등급 색상 클래스
     function getGradeClass(grade) {
-      if (!grade) return 'empty';
-      const g = parseFloat(grade);
-      if (g <= 1.5) return 'grade-1';
-      if (g <= 2.5) return 'grade-2';
-      if (g <= 3.5) return 'grade-3';
-      if (g <= 4.5) return 'grade-4';
-      if (g <= 5.5) return 'grade-5';
-      return 'grade-6';
+      if (!grade) return '';
+      const g = parseInt(grade);
+      if (g === 1) return 'grade-1';
+      if (g === 2) return 'grade-2';
+      if (g === 3) return 'grade-3';
+      if (g === 4) return 'grade-4';
+      if (g === 5) return 'grade-5';
+      return 'grade-poor';
     }
 
-    // 학생 상세 페이지로 이동
-    function goToStudent(studentName) {
-      window.location.href = `student.html?name=${encodeURIComponent(studentName)}`;
-    }
-
-    // 에러 표시
     function showError(message) {
-      const content = document.getElementById('content');
-      content.innerHTML = `
+      document.getElementById('content').innerHTML = `
         <div class="error">
           <h3>⚠️ 오류</h3>
           <p>${message}</p>
@@ -484,17 +550,16 @@
       `;
     }
 
-    // 탭 클릭 이벤트
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        currentMonth = tab.dataset.month;
-        renderStudents();
-      });
+    // 월 탭 클릭
+    document.getElementById('monthTabs').addEventListener('click', (e) => {
+      if (e.target.classList.contains('month-tab')) {
+        document.querySelectorAll('.month-tab').forEach(t => t.classList.remove('active'));
+        e.target.classList.add('active');
+        currentMonth = e.target.dataset.month;
+        renderContent();
+      }
     });
 
-    // 초기화 실행
     init();
   </script>
 </body>
