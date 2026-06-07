@@ -960,8 +960,8 @@
         return;
       }
 
-      // 학생이 응시한 과목만 추출
-      const subjectGroups = extractStudentSubjects(grades[0]);
+      // 학생이 응시한 과목만 추출 (모든 시험 병합)
+      const subjectGroups = extractStudentSubjects(grades);
 
       content.innerHTML = `
         <div class="content-header">
@@ -1013,34 +1013,32 @@
     }
 
     // 학생이 응시한 과목만 추출
-    function extractStudentSubjects(gradeData) {
-      if (!gradeData) return [];
-
-      console.log('gradeData:', gradeData); // 디버그
-
-      const allKeys = Object.keys(gradeData).filter(k => k !== 'month' && k !== 'error' && k !== '번호' && k !== '이름');
-
-      console.log('allKeys:', allKeys); // 디버그
+    // 학생이 응시한 과목만 추출 (모든 시험 병합)
+    function extractStudentSubjects(allGrades) {
+      if (!allGrades || allGrades.length === 0) return [];
 
       const subjectMap = {};
 
-      allKeys.forEach(key => {
-        const parts = key.split('_');
-        if (parts.length >= 2) {
-          const metric = parts[parts.length - 1];
-          const subject = parts.slice(0, -1).join('_');
+      // 모든 시험의 과목을 병합
+      allGrades.forEach(gradeData => {
+        const allKeys = Object.keys(gradeData).filter(k => k !== 'month' && k !== 'error' && k !== '번호' && k !== '이름');
 
-          // 값이 있는 과목만 포함
-          if (gradeData[key]) {
-            if (!subjectMap[subject]) {
-              subjectMap[subject] = new Set();
+        allKeys.forEach(key => {
+          const parts = key.split('_');
+          if (parts.length >= 2) {
+            const metric = parts[parts.length - 1];
+            const subject = parts.slice(0, -1).join('_');
+
+            // 값이 있는 과목만 포함
+            if (gradeData[key]) {
+              if (!subjectMap[subject]) {
+                subjectMap[subject] = new Set();
+              }
+              subjectMap[subject].add(metric);
             }
-            subjectMap[subject].add(metric);
           }
-        }
+        });
       });
-
-      console.log('subjectMap:', subjectMap); // 디버그
 
       // 과목별로 정리
       return Object.entries(subjectMap).map(([subject, metricsSet]) => ({
