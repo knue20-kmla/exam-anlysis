@@ -506,7 +506,12 @@
     function extractStudentSubjects(gradeData) {
       if (!gradeData) return [];
 
+      console.log('gradeData:', gradeData); // 디버그
+
       const allKeys = Object.keys(gradeData).filter(k => k !== 'month' && k !== 'error' && k !== '번호' && k !== '이름');
+
+      console.log('allKeys:', allKeys); // 디버그
+
       const subjectMap = {};
 
       allKeys.forEach(key => {
@@ -524,6 +529,8 @@
           }
         }
       });
+
+      console.log('subjectMap:', subjectMap); // 디버그
 
       // 과목별로 정리
       return Object.entries(subjectMap).map(([subject, metricsSet]) => ({
