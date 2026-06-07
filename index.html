@@ -313,7 +313,7 @@
 
     .charts-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
       gap: 20px;
     }
 
@@ -335,7 +335,7 @@
 
     .chart-container {
       position: relative;
-      height: 250px;
+      height: 280px;
     }
 
     @media (max-width: 768px) {
@@ -642,14 +642,29 @@
       `;
 
       subjectGroups.forEach((sg, index) => {
-        chartsHTML += `
-          <div class="chart-card">
-            <div class="chart-card-title">${sg.subject}</div>
-            <div class="chart-container">
-              <canvas id="chart-${index}"></canvas>
+        // 등급 그래프
+        if (sg.metrics.includes('등급')) {
+          chartsHTML += `
+            <div class="chart-card">
+              <div class="chart-card-title">${sg.subject} - 등급</div>
+              <div class="chart-container">
+                <canvas id="chart-grade-${index}"></canvas>
+              </div>
             </div>
-          </div>
-        `;
+          `;
+        }
+
+        // 표준점수 그래프
+        if (sg.metrics.includes('표준점수')) {
+          chartsHTML += `
+            <div class="chart-card">
+              <div class="chart-card-title">${sg.subject} - 표준점수</div>
+              <div class="chart-container">
+                <canvas id="chart-standard-${index}"></canvas>
+              </div>
+            </div>
+          `;
+        }
       });
 
       chartsHTML += `
@@ -660,168 +675,184 @@
       // 그래프 생성은 DOM 렌더링 후 실행
       setTimeout(() => {
         subjectGroups.forEach((sg, index) => {
-          createChart(index, sg, grades, months);
+          if (sg.metrics.includes('등급')) {
+            createGradeChart(index, sg, grades, months);
+          }
+          if (sg.metrics.includes('표준점수')) {
+            createStandardChart(index, sg, grades, months);
+          }
         });
       }, 100);
 
       return chartsHTML;
     }
 
-    function createChart(index, subjectGroup, grades, months) {
-      const ctx = document.getElementById(`chart-${index}`);
+    // 등급 그래프
+    function createGradeChart(index, subjectGroup, grades, months) {
+      const ctx = document.getElementById(`chart-grade-${index}`);
       if (!ctx) return;
 
-      const datasets = [];
-
-      // 색상 및 Y축 설정
-      const metricConfig = {
-        '원점수': { color: '#2196f3', yAxisID: 'y-score' },
-        '표준점수': { color: '#4caf50', yAxisID: 'y-standard' },
-        '백분위': { color: '#ff9800', yAxisID: 'y-percentile' },
-        '등급': { color: '#9c27b0', yAxisID: 'y-grade' }
-      };
-
-      subjectGroup.metrics.forEach((metric) => {
-        const data = grades.map(g => {
-          const key = `${subjectGroup.subject}_${metric}`;
-          const value = g[key];
-          return value && value !== '-' ? parseFloat(value) : null;
-        });
-
-        const config = metricConfig[metric] || { color: '#666', yAxisID: 'y' };
-
-        datasets.push({
-          label: metric,
-          data: data,
-          borderColor: config.color,
-          backgroundColor: config.color + '20',
-          borderWidth: 2,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-          tension: 0.3,
-          fill: false,
-          yAxisID: config.yAxisID
-        });
+      const data = grades.map(g => {
+        const key = `${subjectGroup.subject}_등급`;
+        const value = g[key];
+        return value && value !== '-' ? parseFloat(value) : null;
       });
-
-      // Y축 스케일 구성
-      const scales = {
-        x: {
-          grid: { display: false },
-          ticks: {
-            font: { size: 11, family: "'Noto Sans KR', sans-serif" }
-          }
-        }
-      };
-
-      // 사용된 측정항목에 따라 Y축 추가
-      if (subjectGroup.metrics.includes('원점수')) {
-        scales['y-score'] = {
-          type: 'linear',
-          position: 'left',
-          title: { display: true, text: '원점수', font: { size: 10 } },
-          grid: { color: 'rgba(33,150,243,0.1)' },
-          ticks: { font: { size: 10 } }
-        };
-      }
-
-      if (subjectGroup.metrics.includes('표준점수')) {
-        scales['y-standard'] = {
-          type: 'linear',
-          position: 'left',
-          title: { display: true, text: '표준점수', font: { size: 10 } },
-          grid: { color: 'rgba(76,175,80,0.1)' },
-          ticks: { font: { size: 10 } }
-        };
-      }
-
-      if (subjectGroup.metrics.includes('백분위')) {
-        scales['y-percentile'] = {
-          type: 'linear',
-          position: 'right',
-          title: { display: true, text: '백분위', font: { size: 10 } },
-          min: 0,
-          max: 100,
-          grid: { display: false },
-          ticks: { font: { size: 10 } }
-        };
-      }
-
-      if (subjectGroup.metrics.includes('등급')) {
-        scales['y-grade'] = {
-          type: 'linear',
-          position: 'right',
-          title: { display: true, text: '등급', font: { size: 10 } },
-          min: 1,
-          max: 9,
-          reverse: true,
-          grid: { display: false },
-          ticks: {
-            stepSize: 1,
-            font: { size: 10 }
-          }
-        };
-      }
 
       new Chart(ctx, {
         type: 'line',
         data: {
           labels: months,
-          datasets: datasets
+          datasets: [{
+            label: '등급',
+            data: data,
+            borderColor: '#2196f3',
+            backgroundColor: 'rgba(33, 150, 243, 0.1)',
+            borderWidth: 3,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            pointBackgroundColor: '#2196f3',
+            tension: 0.3,
+            fill: true
+          }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          interaction: {
-            mode: 'index',
-            intersect: false
-          },
           plugins: {
             legend: {
-              display: true,
-              position: 'top',
-              labels: {
-                boxWidth: 12,
-                padding: 8,
-                font: {
-                  size: 11,
-                  family: "'Noto Sans KR', sans-serif"
-                }
-              }
+              display: false
             },
             tooltip: {
-              mode: 'index',
-              intersect: false,
               backgroundColor: 'rgba(0,0,0,0.8)',
-              padding: 10,
+              padding: 12,
               titleFont: {
-                size: 12,
+                size: 13,
                 family: "'Noto Sans KR', sans-serif"
               },
               bodyFont: {
-                size: 11,
+                size: 12,
                 family: "'Noto Sans KR', sans-serif"
               },
               callbacks: {
                 label: function(context) {
-                  let label = context.dataset.label || '';
-                  if (label) {
-                    label += ': ';
-                  }
-                  if (context.parsed.y !== null) {
-                    label += context.parsed.y;
-                    if (context.dataset.label === '백분위') {
-                      label += '%';
-                    } else if (context.dataset.label === '등급') {
-                      label += '등급';
-                    }
-                  }
-                  return label;
+                  return context.parsed.y + '등급';
                 }
               }
             }
           },
-          scales: scales
+          scales: {
+            y: {
+              min: 1,
+              max: 9,
+              reverse: true,
+              ticks: {
+                stepSize: 1,
+                font: {
+                  size: 12,
+                  family: "'Noto Sans KR', sans-serif"
+                },
+                callback: function(value) {
+                  return value + '등급';
+                }
+              },
+              grid: {
+                color: 'rgba(0,0,0,0.08)'
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                font: {
+                  size: 12,
+                  family: "'Noto Sans KR', sans-serif"
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // 표준점수 그래프
+    function createStandardChart(index, subjectGroup, grades, months) {
+      const ctx = document.getElementById(`chart-standard-${index}`);
+      if (!ctx) return;
+
+      const data = grades.map(g => {
+        const key = `${subjectGroup.subject}_표준점수`;
+        const value = g[key];
+        return value && value !== '-' ? parseFloat(value) : null;
+      });
+
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: months,
+          datasets: [{
+            label: '표준점수',
+            data: data,
+            borderColor: '#4caf50',
+            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+            borderWidth: 3,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            pointBackgroundColor: '#4caf50',
+            tension: 0.3,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0,0,0,0.8)',
+              padding: 12,
+              titleFont: {
+                size: 13,
+                family: "'Noto Sans KR', sans-serif"
+              },
+              bodyFont: {
+                size: 12,
+                family: "'Noto Sans KR', sans-serif"
+              },
+              callbacks: {
+                label: function(context) {
+                  return '표준점수: ' + context.parsed.y;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+              ticks: {
+                font: {
+                  size: 12,
+                  family: "'Noto Sans KR', sans-serif"
+                }
+              },
+              grid: {
+                color: 'rgba(0,0,0,0.08)'
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                font: {
+                  size: 12,
+                  family: "'Noto Sans KR', sans-serif"
+                }
+              }
+            }
+          }
         }
       });
     }
