@@ -15,8 +15,7 @@
     }
 
     :root {
-      --bg: #f0f4f8;
-      --bg-gradient: linear-gradient(135deg, #e3f2fd 0%, #f0f4f8 50%, #e1f5fe 100%);
+      --bg: #f5f7fa;
       --sidebar-bg: #ffffff;
       --content-bg: #ffffff;
       --border: #e0e7ef;
@@ -24,25 +23,23 @@
       --primary: #2196f3;
       --primary-dark: #1976d2;
       --primary-light: #64b5f6;
-      --accent: #00bcd4;
       --text: #1a2332;
       --text-secondary: #546e7a;
       --text-muted: #90a4ae;
-      --shadow: rgba(33, 150, 243, 0.08);
-      --shadow-hover: rgba(33, 150, 243, 0.15);
+      --shadow: rgba(0,0,0,0.04);
+      --shadow-hover: rgba(33,150,243,0.12);
       --grade-1: #4caf50;
       --grade-2: #8bc34a;
       --grade-3: #ffc107;
       --grade-4: #ff9800;
       --grade-5: #ff5722;
       --grade-poor: #f44336;
-      --radius: 12px;
+      --radius: 8px;
     }
 
     body {
       font-family: 'Noto Sans KR', sans-serif;
-      background: var(--bg-gradient);
-      background-attachment: fixed;
+      background: var(--bg);
       color: var(--text);
       min-height: 100vh;
       display: flex;
@@ -50,7 +47,7 @@
 
     /* 사이드바 */
     .sidebar {
-      width: 280px;
+      width: 260px;
       background: var(--sidebar-bg);
       border-right: 1px solid var(--border);
       height: 100vh;
@@ -58,40 +55,39 @@
       left: 0;
       top: 0;
       overflow-y: auto;
-      box-shadow: 4px 0 12px var(--shadow);
+      box-shadow: 2px 0 8px var(--shadow);
       z-index: 100;
     }
 
     .sidebar-header {
-      padding: 32px 24px;
+      padding: 24px 20px;
       border-bottom: 1px solid var(--border);
       background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
       color: white;
     }
 
     .sidebar-header h1 {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
       margin-bottom: 4px;
     }
 
     .sidebar-header p {
-      font-size: 13px;
+      font-size: 12px;
       opacity: 0.9;
     }
 
-    /* 학생 목록 */
     .student-list {
-      padding: 16px;
+      padding: 12px;
     }
 
     .student-list-title {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       padding: 0 8px;
     }
 
@@ -99,8 +95,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 16px;
-      margin-bottom: 4px;
+      padding: 12px 14px;
+      margin-bottom: 3px;
       background: white;
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -110,8 +106,8 @@
 
     .student-item:hover {
       border-color: var(--border-hover);
-      box-shadow: 0 2px 8px var(--shadow-hover);
-      transform: translateX(4px);
+      box-shadow: 0 2px 6px var(--shadow-hover);
+      transform: translateX(3px);
     }
 
     .student-item.active {
@@ -121,59 +117,59 @@
     }
 
     .student-name {
-      font-size: 15px;
+      font-size: 14px;
       color: var(--text);
     }
 
     .student-badge {
       display: inline-block;
-      padding: 4px 8px;
+      padding: 3px 7px;
       background: var(--primary);
       color: white;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 600;
-      border-radius: 6px;
+      border-radius: 5px;
     }
 
     /* 메인 콘텐츠 */
     .main-content {
-      margin-left: 280px;
+      margin-left: 260px;
       flex: 1;
-      padding: 40px;
+      padding: 32px;
       min-height: 100vh;
     }
 
     .content-header {
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
     .content-title {
-      font-size: 28px;
+      font-size: 24px;
       font-weight: 700;
       color: var(--text);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .content-subtitle {
-      font-size: 14px;
+      font-size: 13px;
       color: var(--text-muted);
     }
 
     /* 월별 탭 */
     .month-tabs {
       display: flex;
-      gap: 8px;
-      margin-bottom: 24px;
+      gap: 6px;
+      margin-bottom: 20px;
       flex-wrap: wrap;
     }
 
     .month-tab {
-      padding: 10px 20px;
+      padding: 8px 16px;
       background: white;
       border: 1px solid var(--border);
       border-radius: var(--radius);
       color: var(--text-secondary);
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
@@ -185,10 +181,9 @@
     }
 
     .month-tab.active {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      background: var(--primary);
       color: white;
       border-color: var(--primary);
-      box-shadow: 0 2px 8px var(--shadow-hover);
     }
 
     /* 성적 테이블 */
@@ -196,23 +191,26 @@
       background: var(--content-bg);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: 0 2px 12px var(--shadow);
+      overflow-x: auto;
+      box-shadow: 0 1px 4px var(--shadow);
     }
 
     .grade-table table {
       width: 100%;
       border-collapse: collapse;
+      font-size: 12px;
     }
 
     .grade-table th {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-      color: white;
-      padding: 16px;
+      background: #f8f9fa;
+      color: var(--text);
+      padding: 10px 8px;
       text-align: center;
-      font-size: 13px;
-      font-weight: 600;
-      border-right: 1px solid rgba(255,255,255,0.1);
+      font-size: 11px;
+      font-weight: 700;
+      border-bottom: 2px solid var(--border);
+      border-right: 1px solid var(--border);
+      white-space: nowrap;
     }
 
     .grade-table th:last-child {
@@ -220,11 +218,11 @@
     }
 
     .grade-table td {
-      padding: 16px;
+      padding: 10px 8px;
       text-align: center;
       border-bottom: 1px solid var(--border);
       border-right: 1px solid var(--border);
-      font-size: 14px;
+      font-size: 12px;
     }
 
     .grade-table td:last-child {
@@ -236,17 +234,16 @@
     }
 
     .grade-table tbody tr:hover {
-      background: #f5f9fc;
+      background: #f8fafb;
     }
 
-    .subject-header {
-      background: var(--primary-light) !important;
-      color: white !important;
-      font-size: 14px !important;
+    .grade-table td:first-child {
+      font-weight: 600;
+      background: #fafbfc;
     }
 
     .grade-value {
-      font-weight: 600;
+      font-weight: 700;
     }
 
     .grade-1 { color: var(--grade-1); }
@@ -254,18 +251,21 @@
     .grade-3 { color: var(--grade-3); }
     .grade-4 { color: var(--grade-4); }
     .grade-5 { color: var(--grade-5); }
-    .grade-poor { color: var(--grade-poor); }
+    .grade-6,
+    .grade-7,
+    .grade-8,
+    .grade-9 { color: var(--grade-poor); }
 
     /* 로딩 */
     .loading {
       text-align: center;
-      padding: 80px 20px;
+      padding: 60px 20px;
     }
 
     .spinner {
       display: inline-block;
-      width: 48px;
-      height: 48px;
+      width: 40px;
+      height: 40px;
       border: 3px solid var(--border);
       border-top-color: var(--primary);
       border-radius: 50%;
@@ -277,30 +277,29 @@
     }
 
     .loading-text {
-      margin-top: 16px;
+      margin-top: 12px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    /* 에러 & 빈 상태 */
+    .error, .empty {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px;
+      text-align: center;
       color: var(--text-muted);
     }
 
-    /* 에러 */
     .error {
-      background: white;
-      border: 2px solid var(--grade-poor);
-      border-radius: var(--radius);
-      padding: 24px;
-      text-align: center;
+      border-color: var(--grade-poor);
       color: var(--grade-poor);
     }
 
-    /* 빈 상태 */
-    .empty {
-      text-align: center;
-      padding: 80px 20px;
-      color: var(--text-muted);
-    }
-
     .empty-icon {
-      font-size: 64px;
-      margin-bottom: 16px;
+      font-size: 48px;
+      margin-bottom: 12px;
       opacity: 0.3;
     }
 
@@ -315,22 +314,16 @@
       .main-content {
         margin-left: 0;
       }
-
-      .grade-table {
-        overflow-x: auto;
-      }
     }
   </style>
 </head>
 <body>
-  <!-- 사이드바 -->
   <aside class="sidebar">
     <div class="sidebar-header">
       <h1>📊 모의고사 분석</h1>
       <p>민족사관고등학교 3학년 2반</p>
     </div>
 
-    <!-- 학생 목록 -->
     <div class="student-list">
       <div class="student-list-title">학생 목록</div>
       <div id="studentList">
@@ -342,7 +335,6 @@
     </div>
   </aside>
 
-  <!-- 메인 콘텐츠 -->
   <main class="main-content">
     <div id="content">
       <div class="empty">
@@ -361,7 +353,6 @@
     let selectedStudent = null;
     let currentMonth = 'all';
 
-    // 초기화
     async function init() {
       try {
         const students = await fetchStudents();
@@ -394,7 +385,6 @@
       }
     }
 
-    // 학생 목록 렌더링
     function renderStudentList() {
       const list = document.getElementById('studentList');
 
@@ -428,7 +418,6 @@
       renderContent();
     }
 
-    // 콘텐츠 렌더링
     function renderContent() {
       const content = document.getElementById('content');
 
@@ -444,6 +433,34 @@
       }
 
       const grades = getStudentAllGrades(selectedStudent, currentMonth);
+
+      if (grades.length === 0) {
+        content.innerHTML = `
+          <div class="content-header">
+            <h2 class="content-title">${selectedStudent} 학생 성적표</h2>
+            <p class="content-subtitle">시험별 상세 성적을 확인할 수 있습니다</p>
+          </div>
+          <div class="month-tabs">
+            <button class="month-tab ${currentMonth === 'all' ? 'active' : ''}" onclick="changeMonth('all')">전체</button>
+            <button class="month-tab ${currentMonth === '3월' ? 'active' : ''}" onclick="changeMonth('3월')">3월</button>
+            <button class="month-tab ${currentMonth === '5월' ? 'active' : ''}" onclick="changeMonth('5월')">5월</button>
+            <button class="month-tab ${currentMonth === '6월' ? 'active' : ''}" onclick="changeMonth('6월')">6월</button>
+            <button class="month-tab ${currentMonth === '7월' ? 'active' : ''}" onclick="changeMonth('7월')">7월</button>
+            <button class="month-tab ${currentMonth === '9월' ? 'active' : ''}" onclick="changeMonth('9월')">9월</button>
+            <button class="month-tab ${currentMonth === '10월' ? 'active' : ''}" onclick="changeMonth('10월')">10월</button>
+          </div>
+          <div class="empty">
+            <div class="empty-icon">📊</div>
+            <h3>성적 데이터가 없습니다</h3>
+            <p>${selectedStudent} 학생의 ${currentMonth === 'all' ? '전체' : currentMonth} 성적이 없습니다</p>
+          </div>
+        `;
+        return;
+      }
+
+      // 동적으로 컬럼 추출
+      const allKeys = Object.keys(grades[0]).filter(k => k !== 'month' && k !== 'error');
+      const columns = allKeys.filter(k => k !== '번호' && k !== '이름');
 
       content.innerHTML = `
         <div class="content-header">
@@ -461,61 +478,28 @@
           <button class="month-tab ${currentMonth === '10월' ? 'active' : ''}" onclick="changeMonth('10월')">10월</button>
         </div>
 
-        ${grades.length === 0 ? `
-          <div class="empty">
-            <div class="empty-icon">📊</div>
-            <h3>성적 데이터가 없습니다</h3>
-            <p>${selectedStudent} 학생의 ${currentMonth === 'all' ? '전체' : currentMonth} 성적이 없습니다</p>
-          </div>
-        ` : `
-          <div class="grade-table">
-            <table>
-              <thead>
+        <div class="grade-table">
+          <table>
+            <thead>
+              <tr>
+                <th>시험</th>
+                ${columns.map(col => `<th>${col}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              ${grades.map(g => `
                 <tr>
-                  <th>시험</th>
-                  <th class="subject-header" colspan="4">국어</th>
-                  <th class="subject-header" colspan="4">수학</th>
-                  <th class="subject-header" colspan="2">영어</th>
-                  <th class="subject-header" colspan="4">탐구1</th>
-                  <th class="subject-header" colspan="4">탐구2</th>
+                  <td>${g.month}</td>
+                  ${columns.map(col => {
+                    const value = g[col] || '-';
+                    const isGrade = col.includes('등급');
+                    return `<td class="${isGrade ? 'grade-value ' + getGradeClass(value) : ''}">${value}</td>`;
+                  }).join('')}
                 </tr>
-                <tr>
-                  <th>월</th>
-                  <th>원점수</th><th>표준점수</th><th>백분위</th><th>등급</th>
-                  <th>원점수</th><th>표준점수</th><th>백분위</th><th>등급</th>
-                  <th>원점수</th><th>등급</th>
-                  <th>원점수</th><th>표준점수</th><th>백분위</th><th>등급</th>
-                  <th>원점수</th><th>표준점수</th><th>백분위</th><th>등급</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${grades.map(g => `
-                  <tr>
-                    <td><strong>${g.month}</strong></td>
-                    <td>${g.국어_원점수 || '-'}</td>
-                    <td>${g.국어_표준점수 || '-'}</td>
-                    <td>${g.국어_백분위 || '-'}</td>
-                    <td class="grade-value ${getGradeClass(g.국어_등급)}">${g.국어_등급 || '-'}</td>
-                    <td>${g.수학_원점수 || '-'}</td>
-                    <td>${g.수학_표준점수 || '-'}</td>
-                    <td>${g.수학_백분위 || '-'}</td>
-                    <td class="grade-value ${getGradeClass(g.수학_등급)}">${g.수학_등급 || '-'}</td>
-                    <td>${g.영어_원점수 || '-'}</td>
-                    <td class="grade-value ${getGradeClass(g.영어_등급)}">${g.영어_등급 || '-'}</td>
-                    <td>${g.탐구1_원점수 || '-'}</td>
-                    <td>${g.탐구1_표준점수 || '-'}</td>
-                    <td>${g.탐구1_백분위 || '-'}</td>
-                    <td class="grade-value ${getGradeClass(g.탐구1_등급)}">${g.탐구1_등급 || '-'}</td>
-                    <td>${g.탐구2_원점수 || '-'}</td>
-                    <td>${g.탐구2_표준점수 || '-'}</td>
-                    <td>${g.탐구2_백분위 || '-'}</td>
-                    <td class="grade-value ${getGradeClass(g.탐구2_등급)}">${g.탐구2_등급 || '-'}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        `}
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
       `;
     }
 
@@ -546,14 +530,15 @@
     }
 
     function getGradeClass(grade) {
-      if (!grade) return '';
+      if (!grade || grade === '-') return '';
       const g = parseInt(grade);
+      if (isNaN(g)) return '';
       if (g === 1) return 'grade-1';
       if (g === 2) return 'grade-2';
       if (g === 3) return 'grade-3';
       if (g === 4) return 'grade-4';
       if (g === 5) return 'grade-5';
-      return 'grade-poor';
+      return 'grade-6';
     }
 
     function showError(message) {
