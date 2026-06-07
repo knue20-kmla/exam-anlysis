@@ -1156,6 +1156,29 @@
         return value && value !== '-' ? parseFloat(value) : null;
       });
 
+      // 각 구간별 색상 계산 (등급 상승 = 빨강, 하락/유지 = 파랑)
+      const segmentColors = [];
+      const pointColors = [];
+
+      for (let i = 0; i < data.length; i++) {
+        if (i === 0 || data[i] === null || data[i - 1] === null) {
+          // 첫 점 또는 데이터 없으면 파랑
+          pointColors.push('#2196f3');
+          segmentColors.push('#2196f3');
+        } else {
+          // 이전 등급과 비교 (등급은 낮을수록 좋으므로 역방향)
+          if (data[i] < data[i - 1]) {
+            // 등급 상승 (숫자 감소) = 빨강
+            pointColors.push('#f44336');
+            segmentColors.push('#f44336');
+          } else {
+            // 등급 하락/유지 = 파랑
+            pointColors.push('#2196f3');
+            segmentColors.push('#2196f3');
+          }
+        }
+      }
+
       new Chart(ctx, {
         type: 'line',
         data: {
@@ -1163,12 +1186,20 @@
           datasets: [{
             label: '등급',
             data: data,
-            borderColor: '#2196f3',
+            segment: {
+              borderColor: function(context) {
+                const index = context.p1DataIndex;
+                return segmentColors[index] || '#2196f3';
+              }
+            },
+            borderColor: '#2196f3', // 기본 색상
             backgroundColor: 'rgba(33, 150, 243, 0.1)',
             borderWidth: 3,
             pointRadius: 6,
             pointHoverRadius: 8,
-            pointBackgroundColor: '#2196f3',
+            pointBackgroundColor: function(context) {
+              return pointColors[context.dataIndex] || '#2196f3';
+            },
             tension: 0.3,
             fill: true,
             spanGaps: false // 데이터가 없는 구간은 선으로 연결 안 함
