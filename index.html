@@ -401,6 +401,93 @@
         margin-left: 0;
       }
     }
+
+    /* 인쇄 스타일 */
+    @media print {
+      body {
+        background: white;
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 20px;
+      }
+
+      .month-tabs {
+        display: none;
+      }
+
+      .print-button {
+        display: none;
+      }
+
+      .content-header {
+        page-break-after: avoid;
+      }
+
+      .grade-table {
+        page-break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ddd;
+      }
+
+      .charts-section {
+        page-break-before: always;
+      }
+
+      .chart-card {
+        page-break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ddd;
+      }
+
+      .grade-table th {
+        background: #f0f0f0 !important;
+        color: #333 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .grade-table th.subject-header {
+        background: #e0e0e0 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+
+    /* 인쇄 버튼 */
+    .print-button {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      padding: 14px 24px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px var(--shadow-hover);
+      transition: all 0.3s;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .print-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px var(--shadow-hover);
+    }
+
+    .print-button:active {
+      transform: translateY(0);
+    }
   </style>
 </head>
 <body>
@@ -434,6 +521,12 @@
       </div>
     </div>
   </main>
+
+  <!-- 인쇄 버튼 -->
+  <button class="print-button" onclick="printReport()" style="display: none;">
+    <span>🖨️</span>
+    <span>인쇄하기</span>
+  </button>
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbzhGzErp_fxQOh8HDHHGEIn305UuO05OHXLzimvrNsOXfbFltG7V0uczk_diEu_HsViPg/exec';
@@ -506,6 +599,12 @@
       currentMonth = 'all';
       renderStudentList();
       renderContent();
+
+      // 인쇄 버튼 표시
+      const printBtn = document.querySelector('.print-button');
+      if (printBtn) {
+        printBtn.style.display = 'flex';
+      }
     }
 
     function renderContent() {
@@ -823,6 +922,11 @@
           }
         }
       });
+    }
+
+    // 인쇄 함수
+    function printReport() {
+      window.print();
     }
 
     init();
