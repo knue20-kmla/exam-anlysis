@@ -633,34 +633,23 @@
 
     // 그래프 렌더링
     function renderCharts(grades, subjectGroups) {
-      const months = grades.map(g => g.month);
+      // 모든 월 고정 (3월~10월)
+      const allMonths = ['3월', '5월', '6월', '7월', '9월', '10월'];
 
       let chartsHTML = `
         <div class="charts-section">
-          <h3 class="charts-title">📈 과목별 월별 성적 추이</h3>
+          <h3 class="charts-title">📈 과목별 등급 추이</h3>
           <div class="charts-grid">
       `;
 
       subjectGroups.forEach((sg, index) => {
-        // 등급 그래프
+        // 등급 그래프만 표시
         if (sg.metrics.includes('등급')) {
           chartsHTML += `
             <div class="chart-card">
-              <div class="chart-card-title">${sg.subject} - 등급</div>
+              <div class="chart-card-title">${sg.subject}</div>
               <div class="chart-container">
                 <canvas id="chart-grade-${index}"></canvas>
-              </div>
-            </div>
-          `;
-        }
-
-        // 표준점수 그래프
-        if (sg.metrics.includes('표준점수')) {
-          chartsHTML += `
-            <div class="chart-card">
-              <div class="chart-card-title">${sg.subject} - 표준점수</div>
-              <div class="chart-container">
-                <canvas id="chart-standard-${index}"></canvas>
               </div>
             </div>
           `;
@@ -676,10 +665,7 @@
       setTimeout(() => {
         subjectGroups.forEach((sg, index) => {
           if (sg.metrics.includes('등급')) {
-            createGradeChart(index, sg, grades, months);
-          }
-          if (sg.metrics.includes('표준점수')) {
-            createStandardChart(index, sg, grades, months);
+            createGradeChart(index, sg, grades, allMonths);
           }
         });
       }, 100);
@@ -688,20 +674,24 @@
     }
 
     // 등급 그래프
-    function createGradeChart(index, subjectGroup, grades, months) {
+    function createGradeChart(index, subjectGroup, grades, allMonths) {
       const ctx = document.getElementById(`chart-grade-${index}`);
       if (!ctx) return;
 
-      const data = grades.map(g => {
+      // 모든 월에 대해 데이터 매핑 (없으면 null)
+      const data = allMonths.map(month => {
+        const gradeData = grades.find(g => g.month === month);
+        if (!gradeData) return null;
+
         const key = `${subjectGroup.subject}_등급`;
-        const value = g[key];
+        const value = gradeData[key];
         return value && value !== '-' ? parseFloat(value) : null;
       });
 
       new Chart(ctx, {
         type: 'line',
         data: {
-          labels: months,
+          labels: allMonths,
           datasets: [{
             label: '등급',
             data: data,
@@ -712,7 +702,8 @@
             pointHoverRadius: 8,
             pointBackgroundColor: '#2196f3',
             tension: 0.3,
-            fill: true
+            fill: true,
+            spanGaps: false // 데이터가 없는 구간은 선으로 연결 안 함
           }]
         },
         options: {
@@ -753,88 +744,6 @@
                 },
                 callback: function(value) {
                   return value + '등급';
-                }
-              },
-              grid: {
-                color: 'rgba(0,0,0,0.08)'
-              }
-            },
-            x: {
-              grid: {
-                display: false
-              },
-              ticks: {
-                font: {
-                  size: 12,
-                  family: "'Noto Sans KR', sans-serif"
-                }
-              }
-            }
-          }
-        }
-      });
-    }
-
-    // 표준점수 그래프
-    function createStandardChart(index, subjectGroup, grades, months) {
-      const ctx = document.getElementById(`chart-standard-${index}`);
-      if (!ctx) return;
-
-      const data = grades.map(g => {
-        const key = `${subjectGroup.subject}_표준점수`;
-        const value = g[key];
-        return value && value !== '-' ? parseFloat(value) : null;
-      });
-
-      new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: months,
-          datasets: [{
-            label: '표준점수',
-            data: data,
-            borderColor: '#4caf50',
-            backgroundColor: 'rgba(76, 175, 80, 0.1)',
-            borderWidth: 3,
-            pointRadius: 6,
-            pointHoverRadius: 8,
-            pointBackgroundColor: '#4caf50',
-            tension: 0.3,
-            fill: true
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: false
-            },
-            tooltip: {
-              backgroundColor: 'rgba(0,0,0,0.8)',
-              padding: 12,
-              titleFont: {
-                size: 13,
-                family: "'Noto Sans KR', sans-serif"
-              },
-              bodyFont: {
-                size: 12,
-                family: "'Noto Sans KR', sans-serif"
-              },
-              callbacks: {
-                label: function(context) {
-                  return '표준점수: ' + context.parsed.y;
-                }
-              }
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: false,
-              ticks: {
-                font: {
-                  size: 12,
-                  family: "'Noto Sans KR', sans-serif"
                 }
               },
               grid: {
