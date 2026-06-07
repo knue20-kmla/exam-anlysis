@@ -985,6 +985,7 @@
               <tr>
                 <th rowspan="2">시험</th>
                 ${subjectGroups.map(sg => `<th colspan="${sg.metrics.length}" class="subject-header">${sg.subject}</th>`).join('')}
+                <th rowspan="2">PDF</th>
               </tr>
               <tr>
                 ${subjectGroups.map(sg => sg.metrics.map(m => `<th>${m}</th>`).join('')).join('')}
@@ -1002,6 +1003,7 @@
                       return `<td class="${isGrade ? 'grade-value ' + getGradeClass(value) : ''}">${value}</td>`;
                     }).join('')
                   ).join('')}
+                  <td>${g.PDF_URL ? `<a href="${g.PDF_URL}" target="_blank" style="color: var(--primary);">📄</a>` : '-'}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -1021,7 +1023,13 @@
 
       // 모든 시험의 과목을 병합
       allGrades.forEach(gradeData => {
-        const allKeys = Object.keys(gradeData).filter(k => k !== 'month' && k !== 'error' && k !== '번호' && k !== '이름');
+        const allKeys = Object.keys(gradeData).filter(k =>
+          k !== 'month' &&
+          k !== 'error' &&
+          k !== '번호' &&
+          k !== '이름' &&
+          k !== 'PDF_URL' // PDF_URL 제외
+        );
 
         allKeys.forEach(key => {
           const parts = key.split('_');
@@ -1040,14 +1048,35 @@
         });
       });
 
-      // 과목별로 정리
-      return Object.entries(subjectMap).map(([subject, metricsSet]) => ({
+      // 과목 순서 정의 (국어, 수학, 영어, 한국사, 탐구과목들 순)
+      const subjectOrder = ['국어(화법과작문)', '국어(언어와매체)', '수학(확률과통계)', '수학(미적분)', '수학(기하)', '영어', '한국사'];
+
+      // 과목별로 정리 및 정렬
+      const subjectGroups = Object.entries(subjectMap).map(([subject, metricsSet]) => ({
         subject: subject,
         metrics: Array.from(metricsSet).sort((a, b) => {
           const order = ['원점수', '표준점수', '백분위', '등급'];
           return order.indexOf(a) - order.indexOf(b);
         })
       }));
+
+      // 과목 정렬: 주요과목 먼저, 나머지는 알파벳순
+      subjectGroups.sort((a, b) => {
+        const aIndex = subjectOrder.indexOf(a.subject);
+        const bIndex = subjectOrder.indexOf(b.subject);
+
+        if (aIndex !== -1 && bIndex !== -1) {
+          return aIndex - bIndex; // 둘 다 주요과목이면 순서대로
+        } else if (aIndex !== -1) {
+          return -1; // a만 주요과목이면 a가 앞
+        } else if (bIndex !== -1) {
+          return 1; // b만 주요과목이면 b가 앞
+        } else {
+          return a.subject.localeCompare(b.subject); // 둘 다 탐구과목이면 가나다순
+        }
+      });
+
+      return subjectGroups;
     }
 
     function changeMonth(month) {
