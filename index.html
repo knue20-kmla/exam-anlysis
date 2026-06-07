@@ -1193,7 +1193,7 @@
               }
             },
             borderColor: '#2196f3', // 기본 색상
-            backgroundColor: 'rgba(33, 150, 243, 0.1)',
+            backgroundColor: 'transparent', // 배경 투명
             borderWidth: 3,
             pointRadius: 6,
             pointHoverRadius: 8,
@@ -1201,7 +1201,7 @@
               return pointColors[context.dataIndex] || '#2196f3';
             },
             tension: 0.3,
-            fill: true,
+            fill: false, // 배경 영역 제거
             spanGaps: false // 데이터가 없는 구간은 선으로 연결 안 함
           }]
         },
