@@ -414,7 +414,9 @@
     function getExamCount(studentName) {
       let count = 0;
       Object.values(examsData).forEach(monthData => {
-        if (monthData && monthData.find(e => e.이름 === studentName)) count++;
+        if (monthData && Array.isArray(monthData)) {
+          if (monthData.find(e => e.이름 === studentName)) count++;
+        }
       });
       return count + '회';
     }
