@@ -1200,6 +1200,10 @@
             pointBackgroundColor: function(context) {
               return pointColors[context.dataIndex] || '#2196f3';
             },
+            pointBorderColor: function(context) {
+              return pointColors[context.dataIndex] || '#2196f3';
+            },
+            pointBorderWidth: 2,
             tension: 0.3,
             fill: false, // 배경 영역 제거
             spanGaps: false // 데이터가 없는 구간은 선으로 연결 안 함
