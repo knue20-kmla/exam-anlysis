@@ -28,9 +28,12 @@
       --text: #e8f0f8;
       --text-secondary: #b8c9db;
       --text-muted: #7a8ba3;
-      --success: #28a745;
-      --warning: #ffc107;
-      --error: #ef4444;
+      --grade-1: #28a745;
+      --grade-2: #5cb85c;
+      --grade-3: #ffc107;
+      --grade-4: #ff9800;
+      --grade-5: #ff5722;
+      --grade-poor: #ef4444;
       --radius: 16px;
       --radius-sm: 12px;
     }
@@ -138,8 +141,8 @@
     /* 학생 그리드 */
     .students-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
       margin-bottom: 40px;
     }
 
@@ -147,7 +150,7 @@
       background: var(--surface);
       border: 2px solid var(--border);
       border-radius: var(--radius);
-      padding: 24px;
+      padding: 20px;
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
@@ -166,19 +169,6 @@
       transition: opacity 0.3s;
     }
 
-    .student-card::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 100px;
-      height: 100px;
-      background: radial-gradient(circle, var(--primary-dim) 0%, transparent 70%);
-      border-radius: 50%;
-      transform: translate(40%, -40%);
-      pointer-events: none;
-    }
-
     .student-card:hover {
       border-color: var(--primary);
       transform: translateY(-4px);
@@ -189,56 +179,48 @@
       opacity: 1;
     }
 
-    .student-number {
-      font-size: 14px;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
-
     .student-name {
-      font-size: 24px;
+      font-size: 20px;
       font-weight: 700;
       margin-bottom: 16px;
       color: var(--text);
+      text-align: center;
     }
 
-    .student-stats {
-      display: flex;
-      gap: 16px;
-      padding-top: 16px;
+    .student-grades {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      padding-top: 12px;
       border-top: 1px solid var(--border);
     }
 
-    .stat-item {
-      flex: 1;
+    .grade-item {
+      text-align: center;
     }
 
-    .stat-label {
-      font-size: 11px;
+    .grade-label {
+      font-size: 10px;
       color: var(--text-muted);
       margin-bottom: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      font-weight: 600;
     }
 
-    .stat-value {
+    .grade-value {
       font-size: 18px;
       font-weight: 700;
-      color: var(--primary-light);
     }
 
-    .stat-value.good {
-      color: var(--success);
-    }
-
-    .stat-value.average {
-      color: var(--warning);
-    }
-
-    .stat-value.poor {
-      color: var(--error);
-    }
+    .grade-value.grade-1 { color: var(--grade-1); }
+    .grade-value.grade-2 { color: var(--grade-2); }
+    .grade-value.grade-3 { color: var(--grade-3); }
+    .grade-value.grade-4 { color: var(--grade-4); }
+    .grade-value.grade-5 { color: var(--grade-5); }
+    .grade-value.grade-6,
+    .grade-value.grade-7,
+    .grade-value.grade-8,
+    .grade-value.grade-9 { color: var(--grade-poor); }
+    .grade-value.empty { color: var(--border); }
 
     /* 로딩 */
     .loading {
@@ -268,11 +250,11 @@
     /* 에러 */
     .error {
       background: var(--surface);
-      border: 2px solid var(--error);
+      border: 2px solid var(--grade-poor);
       border-radius: var(--radius);
       padding: 24px;
       text-align: center;
-      color: var(--error);
+      color: var(--grade-poor);
     }
 
     /* 빈 상태 */
@@ -401,19 +383,30 @@
       const html = `
         <div class="students-grid">
           ${studentsData.map(student => {
-            const stats = getStudentStats(student.이름, currentMonth);
+            const grades = getStudentGrades(student.이름, currentMonth);
             return `
               <div class="student-card" onclick="goToStudent('${student.이름}')">
-                <div class="student-number">${student.번호}번</div>
                 <div class="student-name">${student.이름}</div>
-                <div class="student-stats">
-                  <div class="stat-item">
-                    <div class="stat-label">시험 횟수</div>
-                    <div class="stat-value">${stats.count}회</div>
+                <div class="student-grades">
+                  <div class="grade-item">
+                    <div class="grade-label">국어</div>
+                    <div class="grade-value ${getGradeClass(grades.korean)}">${grades.korean || '-'}</div>
                   </div>
-                  <div class="stat-item">
-                    <div class="stat-label">평균 등급</div>
-                    <div class="stat-value ${getGradeClass(stats.avgGrade)}">${stats.avgGrade || '-'}</div>
+                  <div class="grade-item">
+                    <div class="grade-label">수학</div>
+                    <div class="grade-value ${getGradeClass(grades.math)}">${grades.math || '-'}</div>
+                  </div>
+                  <div class="grade-item">
+                    <div class="grade-label">영어</div>
+                    <div class="grade-value ${getGradeClass(grades.english)}">${grades.english || '-'}</div>
+                  </div>
+                  <div class="grade-item">
+                    <div class="grade-label">탐구1</div>
+                    <div class="grade-value ${getGradeClass(grades.inquiry1)}">${grades.inquiry1 || '-'}</div>
+                  </div>
+                  <div class="grade-item">
+                    <div class="grade-label">탐구2</div>
+                    <div class="grade-value ${getGradeClass(grades.inquiry2)}">${grades.inquiry2 || '-'}</div>
                   </div>
                 </div>
               </div>
@@ -425,12 +418,11 @@
       content.innerHTML = html;
     }
 
-    // 학생 통계 계산
-    function getStudentStats(studentName, month) {
+    // 학생 과목별 평균 등급 계산
+    function getStudentGrades(studentName, month) {
       let exams = [];
 
       if (month === 'all') {
-        // 전체 월 데이터
         Object.values(examsData).forEach(monthData => {
           if (monthData && Array.isArray(monthData)) {
             const studentExam = monthData.find(e => e.이름 === studentName);
@@ -438,7 +430,6 @@
           }
         });
       } else {
-        // 특정 월 데이터
         const monthData = examsData[month];
         if (monthData && Array.isArray(monthData)) {
           const studentExam = monthData.find(e => e.이름 === studentName);
@@ -447,43 +438,34 @@
       }
 
       if (exams.length === 0) {
-        return { count: 0, avgGrade: null };
+        return { korean: null, math: null, english: null, inquiry1: null, inquiry2: null };
       }
 
-      // 평균 등급 계산 (국어, 수학, 영어)
-      let totalGrade = 0;
-      let gradeCount = 0;
-
-      exams.forEach(exam => {
-        if (exam.국어_등급) {
-          totalGrade += parseInt(exam.국어_등급);
-          gradeCount++;
-        }
-        if (exam.수학_등급) {
-          totalGrade += parseInt(exam.수학_등급);
-          gradeCount++;
-        }
-        if (exam.영어_등급) {
-          totalGrade += parseInt(exam.영어_등급);
-          gradeCount++;
-        }
-      });
-
-      const avgGrade = gradeCount > 0 ? (totalGrade / gradeCount).toFixed(1) : null;
+      // 각 과목별 평균 계산
+      const calcAvg = (field) => {
+        const grades = exams.map(e => parseInt(e[field])).filter(g => !isNaN(g));
+        return grades.length > 0 ? (grades.reduce((a,b) => a+b, 0) / grades.length).toFixed(1) : null;
+      };
 
       return {
-        count: exams.length,
-        avgGrade: avgGrade
+        korean: calcAvg('국어_등급'),
+        math: calcAvg('수학_등급'),
+        english: calcAvg('영어_등급'),
+        inquiry1: calcAvg('탐구1_등급'),
+        inquiry2: calcAvg('탐구2_등급')
       };
     }
 
     // 등급 색상 클래스
     function getGradeClass(grade) {
-      if (!grade) return '';
+      if (!grade) return 'empty';
       const g = parseFloat(grade);
-      if (g <= 2) return 'good';
-      if (g <= 4) return 'average';
-      return 'poor';
+      if (g <= 1.5) return 'grade-1';
+      if (g <= 2.5) return 'grade-2';
+      if (g <= 3.5) return 'grade-3';
+      if (g <= 4.5) return 'grade-4';
+      if (g <= 5.5) return 'grade-5';
+      return 'grade-6';
     }
 
     // 학생 상세 페이지로 이동
@@ -505,14 +487,9 @@
     // 탭 클릭 이벤트
     document.querySelectorAll('.tab').forEach(tab => {
       tab.addEventListener('click', () => {
-        // 활성 탭 변경
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-
-        // 월 변경
         currentMonth = tab.dataset.month;
-
-        // 재렌더링
         renderStudents();
       });
     });
