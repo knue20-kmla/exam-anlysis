@@ -757,6 +757,58 @@
       background: #e0e7ef;
     }
 
+    .process-panel {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      padding: 12px;
+      background: var(--content-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+
+    .process-panel select,
+    .process-panel button {
+      height: 36px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0 10px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    .process-panel select {
+      min-width: 96px;
+      background: white;
+      color: var(--text);
+    }
+
+    .process-panel button {
+      background: var(--primary);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+    }
+
+    .process-panel button:hover {
+      background: var(--primary-dark);
+    }
+
+    .process-panel button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .process-status {
+      min-height: 20px;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+
     .error-text {
       color: var(--grade-poor);
       font-size: 12px;
@@ -790,7 +842,21 @@
   </aside>
 
   <main class="main-content">
-    <div id="content">
+    
+    <div class="process-panel" id="processPanel">
+      <select id="processMonth" aria-label="분석할 월 선택">
+        <option value="3월">3월</option>
+        <option value="5월">5월</option>
+        <option value="6월">6월</option>
+        <option value="7월">7월</option>
+        <option value="9월">9월</option>
+        <option value="10월">10월</option>
+      </select>
+      <button id="runProcessBtn" type="button" onclick="runProcessFromWeb()">선택한 월 분석 실행</button>
+      <div class="process-status" id="processStatus" aria-live="polite"></div>
+    </div>
+
+<div id="content">
       <div class="empty">
         <div class="empty-icon">👈</div>
         <h3>학생을 선택해주세요</h3>
@@ -1388,6 +1454,100 @@
         errorDiv.textContent = '비밀번호 변경 중 오류가 발생했습니다.';
       }
     }
+
+    function setProcessStatus(message) {
+      const statusBox = document.getElementById('processStatus');
+      if (statusBox) {
+        statusBox.textContent = message || '';
+      }
+    }
+
+    function resetProcessButton() {
+      const button = document.getElementById('runProcessBtn');
+      if (button) {
+        button.disabled = false;
+        button.textContent = '선택한 월 분석 실행';
+      }
+    }
+
+    async function runProcessFromWeb() {
+      const month = document.getElementById('processMonth').value;
+      const password = prompt('관리자 비밀번호를 입력하세요.');
+
+      if (!password) return;
+
+      const button = document.getElementById('runProcessBtn');
+      button.disabled = true;
+      button.textContent = '분석 시작 중...';
+      setProcessStatus(month + ' 분석 요청 중입니다.');
+
+      try {
+        const url = API_URL
+          + '?action=runProcessMonth'
+          + '&month=' + encodeURIComponent(month)
+          + '&password=' + encodeURIComponent(password);
+
+        const response = await fetch(url);
+        const result = await response.json();
+
+        setProcessStatus(result.message);
+
+        if (result.success) {
+          pollProcessStatus(month);
+        } else {
+          resetProcessButton();
+        }
+      } catch (error) {
+        console.error('분석 실행 요청 오류:', error);
+        setProcessStatus('분석 실행 요청 중 오류가 발생했습니다.');
+        resetProcessButton();
+      }
+    }
+
+    function pollProcessStatus(month) {
+      const timer = setInterval(async () => {
+        try {
+          const url = API_URL
+            + '?action=getProcessStatus'
+            + '&month=' + encodeURIComponent(month);
+
+          const response = await fetch(url);
+          const result = await response.json();
+
+          setProcessStatus(result.message);
+
+          if (result.status === 'done') {
+            clearInterval(timer);
+            setProcessStatus(month + ' 분석이 완료되었습니다. 데이터를 새로고침합니다.');
+            await refreshExamDataAfterProcess(month);
+            resetProcessButton();
+          }
+
+          if (result.status === 'error') {
+            clearInterval(timer);
+            setProcessStatus('분석 오류: ' + result.message);
+            resetProcessButton();
+          }
+        } catch (error) {
+          clearInterval(timer);
+          console.error('분석 상태 확인 오류:', error);
+          setProcessStatus('분석 상태 확인 중 오류가 발생했습니다.');
+          resetProcessButton();
+        }
+      }, 5000);
+    }
+
+    async function refreshExamDataAfterProcess(month) {
+      try {
+        examsData[month] = await fetchExamData(month);
+        renderStudentList();
+        renderContent();
+      } catch (error) {
+        console.error('분석 완료 후 데이터 새로고침 오류:', error);
+        setProcessStatus(month + ' 분석은 완료됐지만 화면 새로고침 중 오류가 발생했습니다.');
+      }
+    }
+
 
     init();
   </script>
