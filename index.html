@@ -923,17 +923,19 @@
     
     <div class="process-panel" id="processPanel">
       <select id="processMonth" aria-label="&#48516;&#49437;&#54624; &#50900; &#49440;&#53469;">
-        <option value="3?">3&#50900;</option>
-        <option value="5?">5&#50900;</option>
-        <option value="6?">6&#50900;</option>
-        <option value="7?">7&#50900;</option>
-        <option value="9?">9&#50900;</option>
-        <option value="10?">10&#50900;</option>
+        <option value="3&#50900;">3&#50900;</option>
+        <option value="5&#50900;">5&#50900;</option>
+        <option value="6&#50900;">6&#50900;</option>
+        <option value="7&#50900;">7&#50900;</option>
+        <option value="9&#50900;">9&#50900;</option>
+        <option value="10&#50900;">10&#50900;</option>
       </select>
       <button id="runProcessBtn" type="button" onclick="runProcessFromWeb()">&#49440;&#53469;&#54620; &#50900; &#48516;&#49437; &#49892;&#54665;</button>
       <button id="cancelProcessBtn" class="process-secondary-button" type="button" onclick="cancelProcessFromWeb()">&#48516;&#49437; &#52712;&#49548;</button>
       <label class="process-force-row"><input id="forceReprocess" type="checkbox">&#44592;&#51316; &#51088;&#47308;&#46020; &#51116;&#48516;&#49437;</label>
       <button class="process-secondary-button" type="button" onclick="checkMissingStudentsFromWeb()">&#48120;&#50629;&#47196;&#46300; &#54869;&#51064;</button>
+      <button class="process-secondary-button" type="button" onclick="checkUploadStatusFromWeb()">&#50629;&#47196;&#46300; &#49345;&#53468;</button>
+      <button class="process-secondary-button" type="button" onclick="showRecentLogsFromWeb()">&#47196;&#44536; &#48372;&#44592;</button>
       <button class="process-secondary-button" type="button" onclick="resetProcessStatusFromWeb()">&#49345;&#53468; &#52488;&#44592;&#54868;</button>
       <div class="process-status" id="processStatus" aria-live="polite"></div>
       <div class="process-extra-result" id="processExtraResult"></div>
@@ -974,6 +976,20 @@
       <div class="modal-buttons">
         <button class="modal-button secondary" onclick="closePasswordModal()">취소</button>
         <button class="modal-button primary" onclick="changePassword()">변경</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="modal" id="adminPasswordModal">
+    <div class="modal-content">
+      <h3 class="modal-title">&#44288;&#47532;&#51088; &#48708;&#48128;&#48264;&#54840;</h3>
+      <input type="password" class="modal-input" id="adminActionPassword" placeholder="&#48708;&#48128;&#48264;&#54840;">
+      <label class="process-force-row"><input id="rememberAdminPassword" type="checkbox">&#51060; &#49464;&#49496;&#50640;&#49436; &#44592;&#50613;</label>
+      <div class="error-text" id="adminPasswordError"></div>
+      <div class="modal-buttons">
+        <button class="modal-button secondary" type="button" onclick="closeAdminPasswordModal()">&#52712;&#49548;</button>
+        <button class="modal-button primary" type="button" onclick="confirmAdminPasswordModal()">&#54869;&#51064;</button>
       </div>
     </div>
   </div>
@@ -1605,17 +1621,55 @@
       }
     }
 
+    let adminPasswordResolver = null;
+
+    function requestAdminPassword() {
+      const savedPassword = sessionStorage.getItem('adminActionPassword');
+      if (savedPassword) return Promise.resolve(savedPassword);
+
+      return new Promise(resolve => {
+        adminPasswordResolver = resolve;
+        document.getElementById('adminActionPassword').value = '';
+        document.getElementById('adminPasswordError').textContent = '';
+        document.getElementById('adminPasswordModal').classList.add('show');
+        setTimeout(() => document.getElementById('adminActionPassword').focus(), 0);
+      });
+    }
+
+    function closeAdminPasswordModal() {
+      document.getElementById('adminPasswordModal').classList.remove('show');
+      if (adminPasswordResolver) {
+        adminPasswordResolver('');
+        adminPasswordResolver = null;
+      }
+    }
+
+    function confirmAdminPasswordModal() {
+      const password = document.getElementById('adminActionPassword').value;
+      const remember = document.getElementById('rememberAdminPassword').checked;
+      if (!password) {
+        document.getElementById('adminPasswordError').textContent = '\uBE44\uBC00\uBC88\uD638\uB97C \uC785\uB825\uD558\uC138\uC694.';
+        return;
+      }
+      if (remember) sessionStorage.setItem('adminActionPassword', password);
+      document.getElementById('adminPasswordModal').classList.remove('show');
+      if (adminPasswordResolver) {
+        adminPasswordResolver(password);
+        adminPasswordResolver = null;
+      }
+    }
+
     async function runProcessFromWeb() {
       const month = document.getElementById('processMonth').value;
       const forceReprocess = document.getElementById('forceReprocess')?.checked || false;
-      const password = prompt('관리자 비밀번호를 입력하세요.');
+      const password = await requestAdminPassword();
 
       if (!password) return;
 
       const button = document.getElementById('runProcessBtn');
       button.disabled = true;
-      button.textContent = '분석 시작 중...';
-      setProcessStatus('분석 요청 중입니다.');
+      button.textContent = '\uBD84\uC11D \uC2DC\uC791 \uC911...';
+      setProcessStatus('\uBD84\uC11D \uC694\uCCAD \uC911\uC785\uB2C8\uB2E4.');
 
       try {
         const url = API_URL
@@ -1627,6 +1681,10 @@
         const response = await fetch(url);
         const result = await response.json();
 
+        if (!result.success && result.message && result.message.includes('password')) {
+          sessionStorage.removeItem('adminActionPassword');
+        }
+
         setProcessStatus(result);
 
         if (result.success) {
@@ -1636,7 +1694,7 @@
         }
       } catch (error) {
         console.error('process request error:', error);
-        setProcessStatus('분석 실행 요청 중 오류가 발생했습니다.');
+        setProcessStatus('\uBD84\uC11D \uC2E4\uD589 \uC694\uCCAD \uC911 \uC624\uB958\uAC00 \uBC1C\uC0DD\uD588\uC2B5\uB2C8\uB2E4.');
         resetProcessButton();
       }
     }
@@ -1666,7 +1724,7 @@
         } catch (error) {
           clearInterval(timer);
           console.error('process status error:', error);
-          setProcessStatus('분석 상태 확인 중 오류가 발생했습니다.');
+          setProcessStatus('\uBD84\uC11D \uC0C1\uD0DC \uD655\uC778 \uC911 \uC624\uB958\uAC00 \uBC1C\uC0DD\uD588\uC2B5\uB2C8\uB2E4.');
           resetProcessButton();
         }
       }, 5000);
@@ -1679,7 +1737,7 @@
         renderContent();
       } catch (error) {
         console.error('refresh after process error:', error);
-        setProcessStatus('분석은 완료됐지만 화면 새로고침 중 오류가 발생했습니다.');
+        setProcessStatus('\uBD84\uC11D\uC740 \uC644\uB8CC\uB410\uC9C0\uB9CC \uD654\uBA74 \uC0C8\uB85C\uACE0\uCE68 \uC911 \uC624\uB958\uAC00 \uBC1C\uC0DD\uD588\uC2B5\uB2C8\uB2E4.');
       }
     }
 
@@ -1688,10 +1746,9 @@
       if (box) box.innerHTML = html || '';
     }
 
-
     async function cancelProcessFromWeb() {
       const month = document.getElementById('processMonth').value;
-      const password = prompt('??? ????? ?????.');
+      const password = await requestAdminPassword();
 
       if (!password) return;
 
@@ -1704,12 +1761,10 @@
         const result = await response.json();
 
         setProcessStatus(result);
-        if (!result.success) {
-          resetProcessButton();
-        }
+        if (!result.success) resetProcessButton();
       } catch (error) {
         console.error('cancel process error:', error);
-        setProcessExtraResult('?? ?? ?? ? ??? ??????.');
+        setProcessExtraResult('\uBD84\uC11D \uCDE8\uC18C \uC694\uCCAD \uC911 \uC624\uB958\uAC00 \uBC1C\uC0DD\uD588\uC2B5\uB2C8\uB2E4.');
       }
     }
 
@@ -1721,25 +1776,71 @@
         const result = await response.json();
 
         if (!result.success) {
-          setProcessExtraResult(escapeHtml(result.message || '미업로드 확인 중 오류가 발생했습니다.'));
+          setProcessExtraResult(escapeHtml(result.message || '\uBBF8\uC5C5\uB85C\uB4DC \uD655\uC778 \uC911 \uC624\uB958\uAC00 \uBC1C\uC0DD\uD588\uC2B5\uB2C8\uB2E4.'));
           return;
         }
 
         const names = (result.missing || []).map(item => escapeHtml(item.name)).join(', ');
-        const summary = '미업로드 학생: ' + result.missingCount + '명' +
-          ' / 전체 ' + result.totalStudents + '명' +
-          ' / 처리됨 ' + result.processedStudents + '명';
+        const summary = '\uBBF8\uC5C5\uB85C\uB4DC \uD559\uC0DD: ' + result.missingCount + '\uBA85'
+          + ' / \uC804\uCCB4 ' + result.totalStudents + '\uBA85'
+          + ' / \uCC98\uB9AC\uB428 ' + result.processedStudents + '\uBA85';
 
-        setProcessExtraResult('<strong>' + summary + '</strong><div>' + (names || '미업로드 학생이 없습니다.') + '</div>');
+        setProcessExtraResult('<strong>' + summary + '</strong><div>' + (names || '\uBBF8\uC5C5\uB85C\uB4DC \uD559\uC0DD\uC774 \uC5C6\uC2B5\uB2C8\uB2E4.') + '</div>');
       } catch (error) {
         console.error('missing students error:', error);
-        setProcessExtraResult('미업로드 확인 중 오류가 발생했습니다.');
+        setProcessExtraResult('\uBBF8\uC5C5\uB85C\uB4DC \uD655\uC778 \uC911 \uC624\uB958\uAC00 \uBC1C\uC0DD\uD588\uC2B5\uB2C8\uB2E4.');
+      }
+    }
+
+    async function checkUploadStatusFromWeb() {
+      const month = document.getElementById('processMonth').value;
+
+      try {
+        const response = await fetch(API_URL + '?action=getUploadStatus&month=' + encodeURIComponent(month));
+        const result = await response.json();
+        if (!result.success) {
+          setProcessExtraResult(escapeHtml(result.message || 'upload status error'));
+          return;
+        }
+
+        const rows = (result.files || []).slice(0, 30).map(file => {
+          const state = file.processed ? '\uBD84\uC11D\uB428' : '\uBBF8\uBD84\uC11D';
+          return '<div>' + escapeHtml(file.name) + ' - ' + state + (file.logStatus ? ' / ' + escapeHtml(file.logStatus) : '') + '</div>';
+        }).join('');
+        const summary = '\uC5C5\uB85C\uB4DC ' + result.uploadedCount + '\uAC1C / \uBD84\uC11D\uB428 ' + result.processedFileCount + '\uAC1C / \uBBF8\uBD84\uC11D ' + result.unprocessedFileCount + '\uAC1C';
+        setProcessExtraResult('<strong>' + summary + '</strong>' + (rows || '<div>PDF ??</div>'));
+      } catch (error) {
+        console.error('upload status error:', error);
+        setProcessExtraResult('\uC5C5\uB85C\uB4DC \uC0C1\uD0DC \uD655\uC778 \uC911 \uC624\uB958\uAC00 \uBC1C\uC0DD\uD588\uC2B5\uB2C8\uB2E4.');
+      }
+    }
+
+    async function showRecentLogsFromWeb() {
+      try {
+        const response = await fetch(API_URL + '?action=getProcessLogs&limit=20');
+        const result = await response.json();
+        if (!result.success) {
+          setProcessExtraResult(escapeHtml(result.message || 'log error'));
+          return;
+        }
+
+        const rows = (result.logs || []).map(log => '<div>'
+          + escapeHtml(log.timestamp) + ' / '
+          + escapeHtml(log.month) + ' / '
+          + escapeHtml(log.fileName) + ' / '
+          + escapeHtml(log.status) + ' / '
+          + escapeHtml(log.message)
+          + '</div>').join('');
+        setProcessExtraResult('<strong>\uCD5C\uADFC \uB85C\uADF8</strong>' + (rows || '<div>?? ??</div>'));
+      } catch (error) {
+        console.error('process logs error:', error);
+        setProcessExtraResult('\uB85C\uADF8 \uC870\uD68C \uC911 \uC624\uB958\uAC00 \uBC1C\uC0DD\uD588\uC2B5\uB2C8\uB2E4.');
       }
     }
 
     async function resetProcessStatusFromWeb() {
       const month = document.getElementById('processMonth').value;
-      const password = prompt('관리자 비밀번호를 입력하세요.');
+      const password = await requestAdminPassword();
 
       if (!password) return;
 
@@ -1753,16 +1854,15 @@
 
         if (result.success) {
           setProcessStatus(result);
-          setProcessExtraResult('상태를 초기화했습니다.');
+          setProcessExtraResult('\uC0C1\uD0DC\uB97C \uCD08\uAE30\uD654\uD588\uC2B5\uB2C8\uB2E4.');
         } else {
-          setProcessExtraResult(escapeHtml(result.message || '상태 초기화 중 오류가 발생했습니다.'));
+          setProcessExtraResult(escapeHtml(result.message || '\uC0C1\uD0DC \uCD08\uAE30\uD654 \uC911 \uC624\uB958\uAC00 \uBC1C\uC0DD\uD588\uC2B5\uB2C8\uB2E4.'));
         }
       } catch (error) {
         console.error('reset process status error:', error);
-        setProcessExtraResult('상태 초기화 중 오류가 발생했습니다.');
+        setProcessExtraResult('\uC0C1\uD0DC \uCD08\uAE30\uD654 \uC911 \uC624\uB958\uAC00 \uBC1C\uC0DD\uD588\uC2B5\uB2C8\uB2E4.');
       }
     }
-
 
     init();
   </script>
