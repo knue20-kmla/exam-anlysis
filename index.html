@@ -887,6 +887,42 @@
       line-height: 1.5;
     }
 
+    .process-tabs {
+      display: inline-flex;
+      gap: 4px;
+      padding: 3px;
+      background: #eef2f7;
+      border-radius: 8px;
+    }
+
+    .process-tab {
+      height: 30px;
+      border: 0;
+      border-radius: 6px;
+      padding: 0 10px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .process-tab.active {
+      background: white;
+      color: var(--primary-dark);
+      box-shadow: 0 1px 4px var(--shadow);
+    }
+
+    .process-actions {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .process-actions.active {
+      display: flex;
+    }
+
     .error-text {
       color: var(--grade-poor);
       font-size: 12px;
@@ -930,13 +966,24 @@
         <option value="9&#50900;">9&#50900;</option>
         <option value="10&#50900;">10&#50900;</option>
       </select>
-      <button id="runProcessBtn" type="button" onclick="runProcessFromWeb()">&#49440;&#53469;&#54620; &#50900; &#48516;&#49437; &#49892;&#54665;</button>
-      <button id="cancelProcessBtn" class="process-secondary-button" type="button" onclick="cancelProcessFromWeb()">&#48516;&#49437; &#52712;&#49548;</button>
-      <label class="process-force-row"><input id="forceReprocess" type="checkbox">&#44592;&#51316; &#51088;&#47308;&#46020; &#51116;&#48516;&#49437;</label>
-      <button class="process-secondary-button" type="button" onclick="checkMissingStudentsFromWeb()">&#48120;&#50629;&#47196;&#46300; &#54869;&#51064;</button>
-      <button class="process-secondary-button" type="button" onclick="checkUploadStatusFromWeb()">&#50629;&#47196;&#46300; &#49345;&#53468;</button>
-      <button class="process-secondary-button" type="button" onclick="showRecentLogsFromWeb()">&#47196;&#44536; &#48372;&#44592;</button>
-      <button class="process-secondary-button" type="button" onclick="resetProcessStatusFromWeb()">&#49345;&#53468; &#52488;&#44592;&#54868;</button>
+      <div class="process-tabs" role="tablist" aria-label="process controls">
+        <button class="process-tab active" type="button" data-process-tab="analysis" onclick="switchProcessTab('analysis')">&#48516;&#49437;</button>
+        <button class="process-tab" type="button" data-process-tab="check" onclick="switchProcessTab('check')">&#51216;&#44160;</button>
+        <button class="process-tab" type="button" data-process-tab="admin" onclick="switchProcessTab('admin')">&#44288;&#47532;</button>
+      </div>
+      <div class="process-actions active" data-process-panel="analysis">
+        <button id="runProcessBtn" type="button" onclick="runProcessFromWeb()">&#49440;&#53469;&#54620; &#50900; &#48516;&#49437; &#49892;&#54665;</button>
+        <button id="cancelProcessBtn" class="process-secondary-button" type="button" onclick="cancelProcessFromWeb()">&#48516;&#49437; &#52712;&#49548;</button>
+        <label class="process-force-row"><input id="forceReprocess" type="checkbox">&#44592;&#51316; &#51088;&#47308;&#46020; &#51116;&#48516;&#49437;</label>
+      </div>
+      <div class="process-actions" data-process-panel="check">
+        <button class="process-secondary-button" type="button" onclick="checkMissingStudentsFromWeb()">&#48120;&#50629;&#47196;&#46300; &#54869;&#51064;</button>
+        <button class="process-secondary-button" type="button" onclick="checkUploadStatusFromWeb()">&#50629;&#47196;&#46300; &#49345;&#53468;</button>
+        <button class="process-secondary-button" type="button" onclick="showRecentLogsFromWeb()">&#47196;&#44536; &#48372;&#44592;</button>
+      </div>
+      <div class="process-actions" data-process-panel="admin">
+        <button class="process-secondary-button" type="button" onclick="resetProcessStatusFromWeb()">&#49345;&#53468; &#52488;&#44592;&#54868;</button>
+      </div>
       <div class="process-status" id="processStatus" aria-live="polite"></div>
       <div class="process-extra-result" id="processExtraResult"></div>
     </div>
@@ -1613,6 +1660,16 @@
         errorHtml;
     }
 
+
+    function switchProcessTab(name) {
+      document.querySelectorAll('[data-process-tab]').forEach(button => {
+        button.classList.toggle('active', button.dataset.processTab === name);
+      });
+      document.querySelectorAll('[data-process-panel]').forEach(panel => {
+        panel.classList.toggle('active', panel.dataset.processPanel === name);
+      });
+    }
+
     function resetProcessButton() {
       const button = document.getElementById('runProcessBtn');
       if (button) {
@@ -1659,12 +1716,19 @@
       }
     }
 
+
+    function confirmForceReprocess() {
+      return window.confirm('?? ?? ?? ??? ? ????. ???? ??????');
+    }
+
     async function runProcessFromWeb() {
       const month = document.getElementById('processMonth').value;
       const forceReprocess = document.getElementById('forceReprocess')?.checked || false;
       const password = await requestAdminPassword();
 
       if (!password) return;
+
+      if (forceReprocess && !confirmForceReprocess()) return;
 
       const button = document.getElementById('runProcessBtn');
       button.disabled = true;
