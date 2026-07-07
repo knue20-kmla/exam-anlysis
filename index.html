@@ -922,15 +922,16 @@
   <main class="main-content">
     
     <div class="process-panel" id="processPanel">
-      <select id="processMonth" aria-label="분석할 월 선택">
-        <option value="3월">3월</option>
-        <option value="5월">5월</option>
-        <option value="6월">6월</option>
-        <option value="7월">7월</option>
-        <option value="9월">9월</option>
-        <option value="10월">10월</option>
+      <select id="processMonth" aria-label="&#48516;&#49437;&#54624; &#50900; &#49440;&#53469;">
+        <option value="3?">3&#50900;</option>
+        <option value="5?">5&#50900;</option>
+        <option value="6?">6&#50900;</option>
+        <option value="7?">7&#50900;</option>
+        <option value="9?">9&#50900;</option>
+        <option value="10?">10&#50900;</option>
       </select>
       <button id="runProcessBtn" type="button" onclick="runProcessFromWeb()">&#49440;&#53469;&#54620; &#50900; &#48516;&#49437; &#49892;&#54665;</button>
+      <button id="cancelProcessBtn" class="process-secondary-button" type="button" onclick="cancelProcessFromWeb()">&#48516;&#49437; &#52712;&#49548;</button>
       <label class="process-force-row"><input id="forceReprocess" type="checkbox">&#44592;&#51316; &#51088;&#47308;&#46020; &#51116;&#48516;&#49437;</label>
       <button class="process-secondary-button" type="button" onclick="checkMissingStudentsFromWeb()">&#48120;&#50629;&#47196;&#46300; &#54869;&#51064;</button>
       <button class="process-secondary-button" type="button" onclick="resetProcessStatusFromWeb()">&#49345;&#53468; &#52488;&#44592;&#54868;</button>
@@ -1553,6 +1554,9 @@
         running: '분석 중',
         done: '분석 완료',
         done_with_errors: '분석 완료(오류 있음)',
+        
+        cancelling: '?? ?? ?',
+        cancelled: '?? ???',
         error: '분석 오류'
       };
       return labels[status] || status || '대기 중';
@@ -1649,7 +1653,7 @@
 
           setProcessStatus(result);
 
-          if (result.status === 'done' || result.status === 'done_with_errors') {
+          if (result.status === 'done' || result.status === 'done_with_errors' || result.status === 'cancelled') {
             clearInterval(timer);
             await refreshExamDataAfterProcess(month);
             resetProcessButton();
@@ -1682,6 +1686,31 @@
     function setProcessExtraResult(html) {
       const box = document.getElementById('processExtraResult');
       if (box) box.innerHTML = html || '';
+    }
+
+
+    async function cancelProcessFromWeb() {
+      const month = document.getElementById('processMonth').value;
+      const password = prompt('??? ????? ?????.');
+
+      if (!password) return;
+
+      try {
+        const url = API_URL
+          + '?action=cancelProcessMonth'
+          + '&month=' + encodeURIComponent(month)
+          + '&password=' + encodeURIComponent(password);
+        const response = await fetch(url);
+        const result = await response.json();
+
+        setProcessStatus(result);
+        if (!result.success) {
+          resetProcessButton();
+        }
+      } catch (error) {
+        console.error('cancel process error:', error);
+        setProcessExtraResult('?? ?? ?? ? ??? ??????.');
+      }
     }
 
     async function checkMissingStudentsFromWeb() {
