@@ -1539,6 +1539,7 @@
       const failed = Number(status.failed || 0);
       const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
       const errors = Array.isArray(status.errors) ? status.errors : [];
+      const title = status.status ? processStatusLabel(status.status) : escapeHtml(status.message || '');
       const currentFile = status.currentFile ? '<div>현재 파일: ' + escapeHtml(status.currentFile) + '</div>' : '';
       const errorHtml = errors.length
         ? '<div class="process-error-list"><strong>오류 목록</strong>' + errors.slice(0, 5).map(item => '<div>' + escapeHtml(item.fileName) + ': ' + escapeHtml(item.error) + '</div>').join('') + (errors.length > 5 ? '<div>+' + (errors.length - 5) + '</div>' : '') + '</div>'
