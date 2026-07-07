@@ -809,6 +809,53 @@
       font-size: 13px;
     }
 
+    .process-status {
+      width: 100%;
+    }
+
+    .process-summary {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .process-chip {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: #eef5ff;
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .process-progress {
+      width: 100%;
+      height: 8px;
+      margin-top: 8px;
+      background: #e8edf3;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .process-progress-bar {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      transition: width 0.25s ease;
+    }
+
+    .process-error-list {
+      width: 100%;
+      margin-top: 8px;
+      color: var(--grade-poor);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
     .error-text {
       color: var(--grade-poor);
       font-size: 12px;
@@ -1455,11 +1502,59 @@
       }
     }
 
-    function setProcessStatus(message) {
+    function escapeHtml(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function processStatusLabel(status) {
+      const labels = {
+        idle: '대기 중',
+        queued: '분석 대기 중',
+        running: '분석 중',
+        done: '분석 완료',
+        done_with_errors: '분석 완료(오류 있음)',
+        error: '분석 오류'
+      };
+      return labels[status] || status || '대기 중';
+    }
+
+    function setProcessStatus(status) {
       const statusBox = document.getElementById('processStatus');
-      if (statusBox) {
-        statusBox.textContent = message || '';
+      if (!statusBox) return;
+
+      if (typeof status === 'string') {
+        statusBox.textContent = status;
+        return;
       }
+
+      const total = Number(status.total || 0);
+      const completed = Number(status.completed || 0);
+      const processed = Number(status.processed || 0);
+      const skipped = Number(status.skipped || 0);
+      const failed = Number(status.failed || 0);
+      const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+      const errors = Array.isArray(status.errors) ? status.errors : [];
+      const currentFile = status.currentFile ? '<div>현재 파일: ' + escapeHtml(status.currentFile) + '</div>' : '';
+      const errorHtml = errors.length
+        ? '<div class="process-error-list"><strong>오류 목록</strong>' + errors.slice(0, 5).map(item => '<div>' + escapeHtml(item.fileName) + ': ' + escapeHtml(item.error) + '</div>').join('') + (errors.length > 5 ? '<div>+' + (errors.length - 5) + '</div>' : '') + '</div>'
+        : '';
+
+      statusBox.innerHTML =
+        '<div>' + title + (total ? ' (' + completed + '/' + total + ', ' + percent + '%)' : '') + '</div>' +
+        currentFile +
+        '<div class="process-summary">' +
+          '<span class="process-chip">총 파일 ' + total + '</span>' +
+          '<span class="process-chip">성공 ' + processed + '</span>' +
+          '<span class="process-chip">건너뜀 ' + skipped + '</span>' +
+          '<span class="process-chip">실패 ' + failed + '</span>' +
+        '</div>' +
+        '<div class="process-progress"><div class="process-progress-bar" style="width:' + percent + '%"></div></div>' +
+        errorHtml;
     }
 
     function resetProcessButton() {
@@ -1479,7 +1574,7 @@
       const button = document.getElementById('runProcessBtn');
       button.disabled = true;
       button.textContent = '분석 시작 중...';
-      setProcessStatus(month + ' 분석 요청 중입니다.');
+      setProcessStatus('분석 요청 중입니다.');
 
       try {
         const url = API_URL
@@ -1490,7 +1585,7 @@
         const response = await fetch(url);
         const result = await response.json();
 
-        setProcessStatus(result.message);
+        setProcessStatus(result);
 
         if (result.success) {
           pollProcessStatus(month);
@@ -1498,7 +1593,7 @@
           resetProcessButton();
         }
       } catch (error) {
-        console.error('분석 실행 요청 오류:', error);
+        console.error('process request error:', error);
         setProcessStatus('분석 실행 요청 중 오류가 발생했습니다.');
         resetProcessButton();
       }
@@ -1514,23 +1609,21 @@
           const response = await fetch(url);
           const result = await response.json();
 
-          setProcessStatus(result.message);
+          setProcessStatus(result);
 
-          if (result.status === 'done') {
+          if (result.status === 'done' || result.status === 'done_with_errors') {
             clearInterval(timer);
-            setProcessStatus(month + ' 분석이 완료되었습니다. 데이터를 새로고침합니다.');
             await refreshExamDataAfterProcess(month);
             resetProcessButton();
           }
 
           if (result.status === 'error') {
             clearInterval(timer);
-            setProcessStatus('분석 오류: ' + result.message);
             resetProcessButton();
           }
         } catch (error) {
           clearInterval(timer);
-          console.error('분석 상태 확인 오류:', error);
+          console.error('process status error:', error);
           setProcessStatus('분석 상태 확인 중 오류가 발생했습니다.');
           resetProcessButton();
         }
@@ -1543,8 +1636,8 @@
         renderStudentList();
         renderContent();
       } catch (error) {
-        console.error('분석 완료 후 데이터 새로고침 오류:', error);
-        setProcessStatus(month + ' 분석은 완료됐지만 화면 새로고침 중 오류가 발생했습니다.');
+        console.error('refresh after process error:', error);
+        setProcessStatus('분석은 완료됐지만 화면 새로고침 중 오류가 발생했습니다.');
       }
     }
 
