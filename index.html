@@ -856,6 +856,37 @@
       line-height: 1.5;
     }
 
+    .process-force-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .process-force-row input {
+      width: 16px;
+      height: 16px;
+    }
+
+    .process-secondary-button {
+      background: #f5f7fa !important;
+      color: var(--text) !important;
+      border-color: var(--border) !important;
+    }
+
+    .process-secondary-button:hover {
+      background: #e9eef5 !important;
+    }
+
+    .process-extra-result {
+      width: 100%;
+      color: var(--text-secondary);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
     .error-text {
       color: var(--grade-poor);
       font-size: 12px;
@@ -899,8 +930,12 @@
         <option value="9월">9월</option>
         <option value="10월">10월</option>
       </select>
-      <button id="runProcessBtn" type="button" onclick="runProcessFromWeb()">선택한 월 분석 실행</button>
+      <button id="runProcessBtn" type="button" onclick="runProcessFromWeb()">??? ? ?? ??</button>
+      <label class="process-force-row"><input id="forceReprocess" type="checkbox">기존 자료도 재분석</label>
+      <button class="process-secondary-button" type="button" onclick="checkMissingStudentsFromWeb()">미업로드 확인</button>
+      <button class="process-secondary-button" type="button" onclick="resetProcessStatusFromWeb()">상태 초기화</button>
       <div class="process-status" id="processStatus" aria-live="polite"></div>
+      <div class="process-extra-result" id="processExtraResult"></div>
     </div>
 
 <div id="content">
@@ -1568,6 +1603,7 @@
 
     async function runProcessFromWeb() {
       const month = document.getElementById('processMonth').value;
+      const forceReprocess = document.getElementById('forceReprocess')?.checked || false;
       const password = prompt('관리자 비밀번호를 입력하세요.');
 
       if (!password) return;
@@ -1581,7 +1617,8 @@
         const url = API_URL
           + '?action=runProcessMonth'
           + '&month=' + encodeURIComponent(month)
-          + '&password=' + encodeURIComponent(password);
+          + '&password=' + encodeURIComponent(password)
+          + '&force=' + encodeURIComponent(forceReprocess ? '1' : '0');
 
         const response = await fetch(url);
         const result = await response.json();
@@ -1639,6 +1676,61 @@
       } catch (error) {
         console.error('refresh after process error:', error);
         setProcessStatus('분석은 완료됐지만 화면 새로고침 중 오류가 발생했습니다.');
+      }
+    }
+
+    function setProcessExtraResult(html) {
+      const box = document.getElementById('processExtraResult');
+      if (box) box.innerHTML = html || '';
+    }
+
+    async function checkMissingStudentsFromWeb() {
+      const month = document.getElementById('processMonth').value;
+
+      try {
+        const response = await fetch(API_URL + '?action=getMissingStudents&month=' + encodeURIComponent(month));
+        const result = await response.json();
+
+        if (!result.success) {
+          setProcessExtraResult(escapeHtml(result.message || '미업로드 확인 중 오류가 발생했습니다.'));
+          return;
+        }
+
+        const names = (result.missing || []).map(item => escapeHtml(item.name)).join(', ');
+        const summary = '미업로드 학생: ' + result.missingCount + '명' +
+          ' / 전체 ' + result.totalStudents + '명' +
+          ' / 처리됨 ' + result.processedStudents + '명';
+
+        setProcessExtraResult('<strong>' + summary + '</strong><div>' + (names || '미업로드 학생이 없습니다.') + '</div>');
+      } catch (error) {
+        console.error('missing students error:', error);
+        setProcessExtraResult('미업로드 확인 중 오류가 발생했습니다.');
+      }
+    }
+
+    async function resetProcessStatusFromWeb() {
+      const month = document.getElementById('processMonth').value;
+      const password = prompt('관리자 비밀번호를 입력하세요.');
+
+      if (!password) return;
+
+      try {
+        const url = API_URL
+          + '?action=resetProcessStatus'
+          + '&month=' + encodeURIComponent(month)
+          + '&password=' + encodeURIComponent(password);
+        const response = await fetch(url);
+        const result = await response.json();
+
+        if (result.success) {
+          setProcessStatus(result);
+          setProcessExtraResult('상태를 초기화했습니다.');
+        } else {
+          setProcessExtraResult(escapeHtml(result.message || '상태 초기화 중 오류가 발생했습니다.'));
+        }
+      } catch (error) {
+        console.error('reset process status error:', error);
+        setProcessExtraResult('상태 초기화 중 오류가 발생했습니다.');
       }
     }
 
